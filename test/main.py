@@ -1,12 +1,12 @@
 #import draw
-from draw import *
+from game import *
 
 
 
 run = True
 game=Game(1)
 #game.loadTexture()
-game.loadTexture("pieces1",80)
+game.loadTexture("pieces1",85)
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
                [-1,-1,-1,-1,-1,-1,-1,-1],

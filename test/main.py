@@ -4,7 +4,7 @@ from game import *
 
 
 run = True
-game=Game(1)
+game=Game(1.5)
 #game.loadTexture()
 game.loadTexture("pieces1",85)
 

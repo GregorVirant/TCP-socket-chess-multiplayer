@@ -41,7 +41,13 @@ class Game:
         #return True
     def mouseGetBoardPosition(self):
         position=pygame.mouse.get_pos()
-        return (position[0]//self.square_size,position[1]//self.square_size)
+        posX=position[0]//self.square_size
+        posY=position[1]//self.square_size
+        if posX>7:
+            posX=7
+        if posY>7:
+            posY=7
+        return (posX,posY)
     # def mousePosition(self):
     #     return pygame.mouse.get_pos()
     def draw(self,board,colorMatrix,colorToMove):

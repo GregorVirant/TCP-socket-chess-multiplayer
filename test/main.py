@@ -20,11 +20,9 @@ colorMatrix=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,
 
 while run:
         run=not game.shouldQuit()
-        
-        if game.mouseIsClicked():
-                #print(game.mousePosition()[0]//100)
+
+        if game.mouseClickedOnBoard():
                 position=game.mouseGetBoardPosition()
-                #print(game.mouseGetBoardPosition())
                 colorMatrix[position[0]][position[1]]=1
 
         # print(game.isMouseClicked())

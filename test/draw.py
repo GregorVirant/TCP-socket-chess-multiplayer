@@ -8,6 +8,7 @@ class Game:
         self.scaledScreen = pygame.display.set_mode([800*scale,800*scale])  
         self.screen = pygame.Surface((800,800))
         self.square_size = 100
+        self.mouseIsPressed = False
         
     def loadTexture(self,folder = "pieces",texture_width=100):
         self.texturesWhite = []
@@ -36,9 +37,19 @@ class Game:
         return False
     def close(self):
         pygame.quit()
-    def mouseIsClicked(self):
-        return pygame.mouse.get_pressed()[0]==1
+    def mouseClickedOnBoard(self):
+        position=pygame.mouse.get_pos()
+        if (not self.mouseIsPressed) and pygame.mouse.get_pressed()[0]:
+            if position[0]<0 or position[0]>=800 or position[1]<0 or position[1]>=800:
+                return False
+            self.mouseIsPressed=True
+            return True
+        if (not pygame.mouse.get_pressed()[0]):
+            self.mouseIsPressed=False
+        return False
+        #return pygame.mouse.get_pressed()[0]==1
         #return True
+
     def mouseGetBoardPosition(self):
         position=pygame.mouse.get_pos()
         posX=position[0]//self.square_size
@@ -48,6 +59,8 @@ class Game:
         if posY>7:
             posY=7
         return (posX,posY)
+    
+
     # def mousePosition(self):
     #     return pygame.mouse.get_pos()
     def draw(self,board,colorMatrix,colorToMove):

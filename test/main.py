@@ -42,7 +42,7 @@ while run:
                 elif legalMoves[row][column]==0: #when user click on a non selected square
                         clearLegalMoves(legalMoves)
                         calculateLegalMoves(row,column,board,legalMoves)
-
+                #a
                 else: #user already selected a piece, now he wants to move it
                         pieceRow=0
                         pieceColumn=0

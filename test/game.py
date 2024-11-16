@@ -6,16 +6,18 @@ class Game:
         pygame.init()
         self.scale = scale
         self.borderWidth=50
-        self.displayWidth=800+2*self.borderWidth
-        self.displayHeight=800+2*self.borderWidth
+        self.displayWidth=(800+2*self.borderWidth)*scale
+        self.displayHeight=(800+2*self.borderWidth)*scale
         #self.scaledScreen = pygame.display.set_mode([800*scale,800*scale])  
         
         self.borderColor=(255,255,0)
-        self.scaledScreen = pygame.display.set_mode([self.displayWidth*scale,self.displayHeight*scale])  
+        self.scaledScreen = pygame.display.set_mode([self.displayWidth,self.displayHeight])  
         self.board = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth))
         #self.boardWithBorder = pygame.Surface((800+self.borderWidth*2,800+self.borderWidth*2))
         self.square_size = 100
         self.mouseIsPressed = False
+
+        self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
         
     def loadTexture(self,folder = "pieces",texture_width=100):
         self.texturesWhite = []
@@ -44,23 +46,43 @@ class Game:
         return False
     def close(self):
         pygame.quit()
-    def mouseClickedOnBoard(self):
+    # def mouseClickedOnBoard(self):
+    #     position=pygame.mouse.get_pos()
+    #     if (not self.mouseIsPressed) and pygame.mouse.get_pressed()[0]:
+    #         if position[0]<(0+self.borderWidth)*self.scale or position[0]>=(800+self.borderWidth)*self.scale or position[1]<(0+self.borderWidth)*self.scale or position[1]>=(800+self.borderWidth)*self.scale:
+    #             return False
+    #         self.mouseIsPressed=True
+    #         return True
+    #     if (not pygame.mouse.get_pressed()[0]):
+    #         self.mouseIsPressed=False
+    #     return False
+    #     #return pygame.mouse.get_pressed()[0]==1
+    #     #return True
+    def mouseClicked(self):
         position=pygame.mouse.get_pos()
         if (not self.mouseIsPressed) and pygame.mouse.get_pressed()[0]:
-            if position[0]<0+self.borderWidth or position[0]>=800+self.borderWidth or position[1]<0+self.borderWidth or position[1]>=800+self.borderWidth:
-                return False
             self.mouseIsPressed=True
             return True
         if (not pygame.mouse.get_pressed()[0]):
             self.mouseIsPressed=False
         return False
-        #return pygame.mouse.get_pressed()[0]==1
-        #return True
+    
+    def mouseClickedOnBoard(self):
+        position=pygame.mouse.get_pos()
+        if position[0]<(0+self.borderWidth)*self.scale or position[0]>=(800+self.borderWidth)*self.scale or position[1]<(0+self.borderWidth)*self.scale or position[1]>=(800+self.borderWidth)*self.scale:
+            return False
+        #return True ionstead of bottom
+        return self.mouseClicked()
+
+
 
     def mouseGetBoardPosition(self):
         position=pygame.mouse.get_pos()
-        posX=(position[0]-self.borderWidth)//self.square_size
-        posY=(position[1]-self.borderWidth)//self.square_size
+        #print(position)
+        posX=(round(position[0]/self.scale)-self.borderWidth)//self.square_size
+        posY=(round(position[1]/self.scale)-self.borderWidth)//self.square_size
+        #posX=(position[0]-self.borderWidth)//self.square_size
+        #posY=(position[1]-self.borderWidth)//self.square_size
         if posX>7:
             posX=7
         if posY>7:
@@ -78,8 +100,8 @@ class Game:
             for j in range(8):
                 if (i % 2 == 1 and j % 2 == 0) or (j % 2 == 1 and i % 2 == 0):
                     pygame.draw.rect(self.board,colors.PURPLE,(self.square_size*j+self.borderWidth,self.square_size*i+self.borderWidth,self.square_size,self.square_size))
-                if colorMatrix[j][i] == 1:
-                    pygame.draw.rect(self.board,colors.BLUE,(self.square_size*j+self.square_size*0.15+self.borderWidth,self.square_size*i+self.square_size*0.15+self.borderWidth,self.square_size-self.square_size*0.3,self.square_size-self.square_size*0.3))
+                if colorMatrix[i][j] != 0:
+                    pygame.draw.rect(self.board,self.colorsForLegalMoves[colorMatrix[i][j]-1],(self.square_size*j+self.square_size*0.15+self.borderWidth,self.square_size*i+self.square_size*0.15+self.borderWidth,self.square_size-self.square_size*0.3,self.square_size-self.square_size*0.3))
                 if(board[i][j]==0):
                     continue
                 #if(board[i][j]==1):self.board.blit(self.texturesWhite[0],(45*j,45*i))
@@ -91,5 +113,6 @@ class Game:
                     #print((board[i][j])*-1-1)
                     self.board.blit(self.texturesBlack[(board[i][j])*-1-1],(self.square_size*j+self.texture_shift+self.borderWidth,self.square_size*i-self.texture_hight+self.texture_width+self.texture_shift+self.borderWidth))
 
-        self.scaledScreen.blit(self.board,(0,0))
+        #self.scaledScreen.blit(self.board,(0,0))
+        self.scaledScreen.blit(pygame.transform.scale(self.board, (self.displayWidth,self.displayHeight)),(0,0))
         pygame.display.flip()

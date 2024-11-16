@@ -4,9 +4,14 @@ def clearLegalMoves(legalMoves):
             legalMoves[i][j]=0
 
 def isLegal(row,column,board):
+    if row<0 or row>7 or column<0 or column>7: 
+        return False
     return board[row][column]==0
 
 def isLegalTake(isMovingPieceWhite,row,column,board):
+    if row<0 or row>7 or column<0 or column>7: 
+        return False
+    
     if isMovingPieceWhite and board[row][column]>=0:
         return False
     if (not isMovingPieceWhite) and board[row][column]<=0:

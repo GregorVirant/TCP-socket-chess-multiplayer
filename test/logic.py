@@ -25,18 +25,18 @@ def legalMovesPawn(row,column,board,legalMoves):
     else:
         color = 1
     
-    if abs(board[row][column]) == 1:
-        if isLegal(row + color, column ,board):
-            legalMoves[row + color][column] = 2
-
-        if (row == 6 and isLegal(row - 2, column, board) and color == -1) or (row == 1 and isLegal(row + 2, column, board) and color == 1): #dvojna poteza
-            legalMoves[row + color * 2][column] = 2
-
-        if isLegalTake(color - 1, row + color, column + color, board): 
-            legalMoves[row + color][column + color] = 3
-
-        if isLegalTake(color - 1, row + color, column - color, board): 
-            legalMoves[row + color][column - color] = 3
+    # premik za 1 naprej
+    if isLegal(row + color, column ,board):
+        legalMoves[row + color][column] = 2
+    # premik za 2 iz osnovnega polja
+    if (row == 6 and isLegal(row - 2, column, board) and color == -1) or (row == 1 and isLegal(row + 2, column, board) and color == 1): #dvojna poteza
+        legalMoves[row + color * 2][column] = 2
+    # ujem figure v eno stran
+    if isLegalTake(color - 1, row + color, column + color, board): 
+        legalMoves[row + color][column + color] = 3
+    # ujem figure v drugo stran
+    if isLegalTake(color - 1, row + color, column - color, board): 
+        legalMoves[row + color][column - color] = 3
 
 
 def legalMovesBishop(row, column, board, legalMoves):
@@ -45,40 +45,108 @@ def legalMovesBishop(row, column, board, legalMoves):
         color = True
     else:
         color=False
-    if abs(board[row][column]) == 4:
-        for i in range(4):
-            #najhitrejši način določanja vrednosti a in b (11,-1-1,1-1,-11)
-            if i % 2 == 0 or i == 0:
-                a = 1
+    vectors = [(1, 1), (1, -1), (-1, 1), (-1, -1)] # določimo smeri premika
+    for i in range(4):
+        a = vectors[i][0]
+        b = vectors[i][1]
+    
+        for j in range(1,7):
+            if isLegal(row + j * a, column + j * b, board):
+                legalMoves[row + j * a][column + j * b] = 2    
+            elif isLegalTake(color, row + j * a, column + j * b, board):
+                legalMoves[row + j * a][column + j * b] = 3
+                break
             else:
-                a = -1
-            if i < 2:
-                b = 1
+                break
+
+def legalMovesRook(row, column, board, legalMoves):
+    if board[row][column] > 0:
+        color = True
+    else:
+        color=False
+    vectors = [(0,1), (0,-1), (1,0), (-1,0)]
+
+    for i in range(4):
+        moveRow = vectors[i][0]
+        moveColumn = vectors[i][1]
+        for j in range(1,7):
+            if isLegal(row + j * moveRow, column + j * moveColumn, board):
+                legalMoves[row + j * moveRow][column + j * moveColumn] = 2
+            elif isLegalTake(color, row + j * moveRow, column + j * moveColumn, board):
+                legalMoves[row + j * moveRow][column + j * moveColumn] = 3
+                break
             else:
-                b = -1
-            
-            for j in range(1,7):
-                if isLegal(row + j * a, column + j * b, board):
-                    legalMoves[row + j * a][column + j * b] = 2    
-                elif isLegalTake(color, row + j * a, column + j * b, board):
-                    legalMoves[row + j * a][column + j * b] = 3
-                    break
-                else:
-                    break
-def legalMovesRook
-                
+                break
+
+
+def legalMovesKnight(row, column, board, legalMoves):
+
+    vectors = [(2,1), (2,-1), (-2,1), (-2,-1), (1,2), (1,-2), (-1,2), (-1,-2)]
+    if(board[row][column] > 0):
+        color = True
+    else:
+        color = False
+
+    for i in range(8):
+        moveRow = vectors[i][0]
+        moveColumn = vectors[i][1]
+        if isLegal(row + moveRow, column + moveColumn, board):
+            legalMoves[row + moveRow][column + moveColumn] = 2
+        elif isLegalTake(color, row + moveRow, column + moveColumn, board):
+            legalMoves[row + moveRow][column + moveColumn] = 3
+
+def legalMovesKing(row, column, board, legalMoves):
+    if board[row][column] > 0:
+        color = True
+    else:
+        color = False
+    
+    vectors = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
+    for i in vectors:
+        moveRow = i[0]
+        moveColumn = i[1]
+        if isLegal(row + moveRow, column + moveColumn, board):
+            legalMoves[row + moveRow][column + moveColumn] = 2
+        elif isLegalTake(color, row + moveRow, column + moveColumn, board):
+            legalMoves[row + moveRow][column + moveColumn] = 3
+
+
     
         
 
 def calculateLegalMoves(row,column,board,legalMoves):
-    legalMoves[row][column]=1
+    legalMoves[row][column] = 1
     if board[row][column] == 0:
         return
+    piece = abs(board[row][column])
     
-    if board[row][column] == 1 or board[row][column] == -1:
+    if piece == 1: # kmet
         legalMovesPawn(row,column,board,legalMoves)
-    if board[row][column] == 4 or board[row][column] == -4:
+        return
+
+    if piece == 2: # trdnjava
+        legalMovesRook(row,column,board,legalMoves)
+        return
+    
+    if piece == 3: # skakač
+        legalMovesKnight(row,column,board,legalMoves)
+        return
+    
+    if piece == 4: # tekač
         legalMovesBishop(row,column,board,legalMoves)
+        return
+
+    if piece == 5: # kraljica je kombinacija trdnjave in tekača
+        legalMovesBishop(row,column,board,legalMoves)
+        legalMovesRook(row,column,board,legalMoves)
+        return
+
+
+    if piece == 6: # kralj
+        legalMovesKing(row,column,board,legalMoves)
+        return
+
+    
 
     
 def move(pieceRow,pieceColumn,clickedRow,clickedColumn,board):

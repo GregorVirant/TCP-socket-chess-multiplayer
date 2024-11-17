@@ -1,9 +1,12 @@
 import socket
-from datetime import datetime
-import os
+from cryptography.fernet import Fernet
 
 PORT = 1234  # Vrata strežnika
 BUFFER_SIZE = 1024  # Konstantna velikost bufferja
+
+# Simetrično kriptiranje
+key = "B8DRpjfj4ieG6zHMs7Ydn8O02MH8ZKnIMLCRoqvxFwA="
+cipher_suite = Fernet(key) # Ustvarjanje objekta za šifriranje in dešifriranje
 
 def start_server():
     try:
@@ -11,7 +14,7 @@ def start_server():
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP/IP vtičnica
         server.bind(('0.0.0.0', PORT))  # Povezava vtičnice na naslov in vrata
         server.listen()  # Začnite poslušati povezave
-        print(f"Poslušam na naslovu 127.0.0.1:{PORT}")
+        print(f"Poslušam na naslovu 0.0.0.0:{PORT}")
     except socket.error as e:
         print("Napaka pri zagonu strežnika:", e)
         return
@@ -22,7 +25,7 @@ def start_server():
             client_ip, client_port = address  # Pridobite IP naslov in vrata odjemalca
             print(f"Odjemalec se je povezal: {client_ip}:{client_port}")
 
-            message = read_from_client(client)  # Pridoibte sporočilo od odjemalca
+            message = read_from_client(client)  # Pridobite sporočilo od odjemalca
             if message:
                 response = protocol(message)  # Obravnava protokola
                 write_to_client(client, response)  # Pošiljanje odgovora odjemalcu
@@ -34,18 +37,22 @@ def start_server():
 
 def read_from_client(client):
     try:
-        data = client.recv(BUFFER_SIZE)  # Prejem podatkov od odjemalca
-        return data.decode('utf-8')  # UTF-8 dekodiranje podatkov
-    except socket.error as e:
-        print("Napaka pri prejemanju podatkov:", e)
-        return None
-    except UnicodeDecodeError as e:
-        print("Napaka pri dekodiranju podatkov:", e)
-        return None
+        encrypted_message = client.recv(BUFFER_SIZE)  # Prejemanje šifriranega sporočila od odjemalca
+        if encrypted_message:
+            # Decrypt the message using the symmetric key
+            decrypted_message = cipher_suite.decrypt(encrypted_message).decode('utf-8')
+            print(f"Prejeto šifrirano sporočilo: {encrypted_message}")
+            print(f"Dešifrirano sporočilo: {decrypted_message}")
+            return decrypted_message
+    except Exception as e:
+        print("Napaka pri branju sporočila od odjemalca:", e)
+    return None
 
 def write_to_client(client, message):
     try:
-        client.sendall(message.encode('utf-8'))  # Pošljite podatke odjemalcu
+        # Encrypt the response using the symmetric key
+        encrypted_response = cipher_suite.encrypt(message.encode('utf-8'))
+        client.sendall(encrypted_response)  # Pošljite šifriran odgovor odjemalcu
         print(f"Odgovoril sem: {message}")
     except socket.error as e:
         print("Napaka pri pošiljanju podatkov:", e)

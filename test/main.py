@@ -51,7 +51,6 @@ while run:
                                         if legalMoves[i][j]==1:
                                                 pieceRow=i
                                                 pieceColumn=j
-                                                
                         move(pieceRow,pieceColumn,row,column,board)
                         clearLegalMoves(legalMoves)
                 

@@ -5,7 +5,7 @@ from logic import *
 
 
 run = True
-game=Game(1.3)  #class for displaying the game and taking user input   (game scale)
+game=Game(1)  #class for displaying the game and taking user input   (game scale)
 game.loadTexture("pieces1",85) #loads figure textures (folder for textures, figures scale)
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
@@ -27,6 +27,8 @@ legalMoves=[[0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0]]
 
+isWhiteToMove=[True]
+
 while run:
         #can add fps limit
         run=not game.shouldQuit()
@@ -41,7 +43,7 @@ while run:
 
                 elif legalMoves[row][column]==0: #when user click on a non selected square
                         clearLegalMoves(legalMoves)
-                        calculateLegalMoves(row,column,board,legalMoves)
+                        calculateLegalMoves(row,column,board,legalMoves, isWhiteToMove)
 
                 else: #user already selected a piece, now he wants to move it
                         pieceRow=0
@@ -51,6 +53,7 @@ while run:
                                         if legalMoves[i][j]==1:
                                                 pieceRow=i
                                                 pieceColumn=j
+                                                isWhiteToMove[0]=not isWhiteToMove[0]
                         move(pieceRow,pieceColumn,row,column,board)
                         clearLegalMoves(legalMoves)
                 

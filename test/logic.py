@@ -1,3 +1,16 @@
+
+#narediti moram class ForsythEdwards, ki bo imel možnost
+#   vračanja fe.getBoard - ki bo vrnil tabelo
+#   vračanje fe.getMove - boolean ki pove če je na vrsti beli
+#   vračanje fe.getEpSquare - vrne string
+#   moram narediti vstavljanje potez
+
+#   forsyth edward
+
+#forsith edwards vsebuje notacijo in predhodne poteze
+
+
+
 def clearLegalMoves(legalMoves):
     for i in range(8):
         for j in range(8):
@@ -28,9 +41,9 @@ def legalMovesPawn(row,column,board,legalMoves):
     # premik za 1 naprej
     if isLegal(row + color, column ,board):
         legalMoves[row + color][column] = 2
-    # premik za 2 iz osnovnega polja
-    if (row == 6 and isLegal(row - 2, column, board) and color == -1) or (row == 1 and isLegal(row + 2, column, board) and color == 1): #dvojna poteza
-        legalMoves[row + color * 2][column] = 2
+        # premik za 2 iz osnovnega polja
+        if (row == 6 and isLegal(row - 2, column, board) and color == -1) or (row == 1 and isLegal(row + 2, column, board) and color == 1): #dvojna poteza
+            legalMoves[row + color * 2][column] = 2
     # ujem figure v eno stran
     if isLegalTake(color - 1, row + color, column + color, board): 
         legalMoves[row + color][column + color] = 3
@@ -111,40 +124,45 @@ def legalMovesKing(row, column, board, legalMoves):
             legalMoves[row + moveRow][column + moveColumn] = 3
 
 
-    
         
 
-def calculateLegalMoves(row,column,board,legalMoves):
-    legalMoves[row][column] = 1
-    if board[row][column] == 0:
-        return
-    piece = abs(board[row][column])
-    
-    if piece == 1: # kmet
-        legalMovesPawn(row,column,board,legalMoves)
-        return
+def calculateLegalMoves(row,column,board,legalMoves,isWhiteToMove):
+    if(isWhiteToMove[0] and board[row][column] > 0 or (not isWhiteToMove[0] and board[row][column] < 0)):
+        
+        legalMoves[row][column] = 1
+        if board[row][column] == 0:
+            return
+        piece = abs(board[row][column])
+        
+        if piece == 1: # kmet
+            legalMovesPawn(row,column,board,legalMoves)
+            
+            return
 
-    if piece == 2: # trdnjava
-        legalMovesRook(row,column,board,legalMoves)
-        return
-    
-    if piece == 3: # skakač
-        legalMovesKnight(row,column,board,legalMoves)
-        return
-    
-    if piece == 4: # tekač
-        legalMovesBishop(row,column,board,legalMoves)
-        return
+        if piece == 2: # trdnjava
+            legalMovesRook(row,column,board,legalMoves)
+            
+            return
+        
+        if piece == 3: # skakač
+            legalMovesKnight(row,column,board,legalMoves)
+            
+            return
+        
+        if piece == 4: # tekač
+            legalMovesBishop(row,column,board,legalMoves)
+            
+            return
 
-    if piece == 5: # kraljica je kombinacija trdnjave in tekača
-        legalMovesBishop(row,column,board,legalMoves)
-        legalMovesRook(row,column,board,legalMoves)
-        return
+        if piece == 5: # kraljica je kombinacija trdnjave in tekača
+            legalMovesBishop(row,column,board,legalMoves)
+            legalMovesRook(row,column,board,legalMoves)
+            return
 
 
-    if piece == 6: # kralj
-        legalMovesKing(row,column,board,legalMoves)
-        return
+        if piece == 6: # kralj
+            legalMovesKing(row,column,board,legalMoves)
+            return
 
     
 

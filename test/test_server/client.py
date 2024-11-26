@@ -2,7 +2,7 @@ import socket
 from cryptography.fernet import Fernet
 
 SERVER_IP = "147.185.221.23"  # IP naslov strežnika
-PORT = 41818  # Vrata strežnika
+PORT = 58677  # Vrata strežnika
 BUFFER_SIZE = 1024  # Medpomnilnik za prejemanje podatkov
 
 # Simetrično kriptiranje

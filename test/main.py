@@ -5,7 +5,7 @@ from logic import *
 
 
 run = True
-game=Game(1)  #class for displaying the game and taking user input   (game scale)
+game=Game(1.3)  #class for displaying the game and taking user input   (game scale)
 game.loadTexture("pieces1",85) #loads figure textures (folder for textures, figures scale)
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
@@ -56,16 +56,9 @@ while run:
                                                 isWhiteToMove[0]=not isWhiteToMove[0]
                         move(pieceRow,pieceColumn,row,column,board)
                         clearLegalMoves(legalMoves)
-                
 
-                        
-
-
-                        
-                                        
-
-
-
+        #Write text
+        game.addText("Testing text",(0,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK)
 
 
         game.draw(board,legalMoves,1)

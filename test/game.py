@@ -17,6 +17,11 @@ class Game:
         self.square_size = 100
         self.mouseIsPressed = False
 
+        self.textImages = []
+        self.textImagesCoordinates = []
+        self.textImagesPermanent = []
+        self.textImagesPermanentCoordinates = []
+
         self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
         
     def loadTexture(self,folder = "pieces",texture_width=100):
@@ -46,18 +51,7 @@ class Game:
         return False
     def close(self):
         pygame.quit()
-    # def mouseClickedOnBoard(self):
-    #     position=pygame.mouse.get_pos()
-    #     if (not self.mouseIsPressed) and pygame.mouse.get_pressed()[0]:
-    #         if position[0]<(0+self.borderWidth)*self.scale or position[0]>=(800+self.borderWidth)*self.scale or position[1]<(0+self.borderWidth)*self.scale or position[1]>=(800+self.borderWidth)*self.scale:
-    #             return False
-    #         self.mouseIsPressed=True
-    #         return True
-    #     if (not pygame.mouse.get_pressed()[0]):
-    #         self.mouseIsPressed=False
-    #     return False
-    #     #return pygame.mouse.get_pressed()[0]==1
-    #     #return True
+
     def mouseClicked(self):
         position=pygame.mouse.get_pos()
         if (not self.mouseIsPressed) and pygame.mouse.get_pressed()[0]:
@@ -89,6 +83,14 @@ class Game:
             posY=7
         return (posX,posY)
     
+    def addText(self,text,coordinates=(0,0),fontSize=50,color=colors.BLACK,font=None,isPermanent=False):
+        selectedFont = pygame.font.SysFont(font,fontSize)
+        if isPermanent:
+            self.textImagesPermanent.append(selectedFont.render(text,True,color))
+            self.textImagesPermanentCoordinates.append(coordinates)        
+            return
+        self.textImages.append(selectedFont.render(text,True,color))
+        self.textImagesCoordinates.append(coordinates)        
 
     # def mousePosition(self):
     #     return pygame.mouse.get_pos()
@@ -112,6 +114,16 @@ class Game:
                 else:
                     #print((board[i][j])*-1-1)
                     self.board.blit(self.texturesBlack[(board[i][j])*-1-1],(self.square_size*j+self.texture_shift+self.borderWidth,self.square_size*i-self.texture_hight+self.texture_width+self.texture_shift+self.borderWidth))
+
+        
+        for i, textImage in enumerate(self.textImages):
+            self.board.blit(textImage,self.textImagesCoordinates[i])
+        self.textImages.clear()
+        self.textImagesCoordinates.clear()
+
+        for i, textImage in enumerate(self.textImagesPermanent):
+            self.board.blit(textImage,self.textImagesPermanentCoordinates[i])
+
 
         #self.scaledScreen.blit(self.board,(0,0))
         self.scaledScreen.blit(pygame.transform.scale(self.board, (self.displayWidth,self.displayHeight)),(0,0))

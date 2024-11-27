@@ -46,11 +46,11 @@ def handle_client(conn, addr, connections):
     try:
         print(f"Povezan uporabnik: {addr}")
         while True:
-            message = read_from_client(conn)
+            protocol, message = read_from_client(conn)
             if not message:
                 break
-            response = protocol(message)
-            write_to_client(conn, response)
+            response = protocol_check(protocol, message)
+            write_to_client("#M", conn, response)
     except Exception as e:
         print(f"Napaka pri obravnavi stranke {addr}: {e}")
     finally:
@@ -65,13 +65,14 @@ def read_from_client(client):
             decrypted_message = cipher_suite.decrypt(encrypted_message).decode('utf-8')
             #print(f"Prejeto šifrirano sporočilo: {encrypted_message}")
             print(f"Sporočilo: {decrypted_message}")
-            return decrypted_message
+            return protocol_decode(decrypted_message)
     except Exception as e:
         print("Napaka pri branju sporočila od odjemalca:", e)
     return None
 
-def write_to_client(client, message):
+def write_to_client(protocol, client, message):
     try:
+        message = protocol_encode(protocol, message)
         encrypted_response = cipher_suite.encrypt(message.encode('utf-8'))
         client.sendall(encrypted_response)  # Pošljite šifriran odgovor odjemalcu
         print(f"Odgovoril sem: {message}")
@@ -91,8 +92,23 @@ def wait_exit(): # Zaustavitev strežnika z ukazom 'exit'
                 s.close()  # Zapiranje socketa
             break
 
-def protocol(message):
-    return f"Prejeto sporočilo: {message}"
+def protocol_check(protocol, message):
+    if protocol == "#M":
+        return message
+    else:
+        return -1
+
+
+def protocol_encode(protocol, message):
+    return f"{protocol}/|/{message}"
+
+def protocol_decode(message):
+    try:
+        str = message.split("/|/")
+    except Exception as e:
+        print("Napaka pri dekodiranju sporočila", e)
+        return None, None
+    return (str[0], str[1])
 
 if __name__ == "__main__":
     main()  # Zagon strežnika

@@ -33,7 +33,6 @@ class ChessBoard:
         legalMoves = self._getEmptyBoard()
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
-            print(f"row: {row}, column: {column}, value {self.currBoard[row][column]}")
             return legalMoves
         #print(f"empty board: {legalMoves}")
         self._calculateLegalMoves(row, column, legalMoves)
@@ -79,11 +78,8 @@ class ChessBoard:
                 return
 
     def makeMove(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
-        print("Tu1")
         legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
-        print(f"legal moves: {legalMoves}")
         if(legalMoves[newSquare[0]][newSquare[1]] < 2):
-            print("Tu1")
             return False
         
         self.isWhiteToMove = not self.isWhiteToMove
@@ -96,7 +92,7 @@ class ChessBoard:
         #preverjanje en passant
         if(abs(piece) == 1 and abs(originSquare[0] - newSquare[0]) == 2):
             # ali je možno narediti en passant
-            if(newSquare[0] != 0 and self.currBoard[newSquare[0]-1][newSquare[1]] == -piece or newSquare[0] != boardSize-1 and self.currBoard[newSquare[0]+1][newSquare[1]]):
+            if(newSquare[0] != 0 and self.currBoard[newSquare[0]-1][newSquare[1]] == -piece or newSquare[0] != self.boardSize-1 and self.currBoard[newSquare[0]+1][newSquare[1]]):
                 if(piece < 0):
                     self.enPassantSquare=[newSquare[0]+1, newSquare[1]]
                 else:
@@ -110,7 +106,6 @@ class ChessBoard:
         else:
             self.halfMoves = (0,0)
         self.moves.append([(originSquare),(newSquare)])
-        print(self.currBoard)
         return True
         #castling TODO
 

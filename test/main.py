@@ -6,7 +6,7 @@ from logic import *
 
 run = True
 game=Game(1.3)  #class for displaying the game and taking user input   (game scale)
-game.loadTexture("pieces1",85) #loads figure textures (folder for textures, figures scale)
+game.loadNextTexture() #loads figure textures (folder for textures, figures scale)
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
         [-1,-1,-1,-1,-1,-1,-1,-1],
@@ -29,11 +29,18 @@ legalMoves=[[0,0,0,0,0,0,0,0],
 
 isWhiteToMove=[True]
 
+game.addButton("Spremeni teksture",game.loadNextTexture,(600,860),(250,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=27,bold=True,font="arial")
+
 while run:
         #can add fps limit
         run=not game.shouldQuit()
 
-        if game.mouseClickedOnBoard(): 
+        #Should run on every cycle
+        game.mouseClickedUpdate()
+
+        buttonClick = game.buttonsCalculateCliks()
+        
+        if not buttonClick and game.mouseClickedOnBoard(): 
                 position=game.mouseGetBoardPosition() #x,y (column,row)
                 row=position[1]
                 column=position[0]
@@ -58,8 +65,7 @@ while run:
                         clearLegalMoves(legalMoves)
 
         #Write text
-        game.addText("Testing text",(0,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK)
-
+        game.addText("White to move",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
 
         game.draw(board,legalMoves,1)
 game.close()

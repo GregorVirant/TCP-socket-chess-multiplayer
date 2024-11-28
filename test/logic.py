@@ -38,6 +38,40 @@ class ChessBoard:
         self._calculateLegalMoves(row, column, legalMoves)
         return legalMoves
 
+    
+    def makeMove(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
+        legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
+        if(legalMoves[newSquare[0]][newSquare[1]] < 2):
+            return False
+        
+        self.isWhiteToMove = not self.isWhiteToMove
+        # izvedem potezo
+        piece = self.currBoard[newSquare[0]][newSquare[1]]
+        self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
+        self.currBoard[originSquare[0]][originSquare[1]] = 0
+        #preverim ostale spremenljivke
+
+        #preverjanje en passant
+        if(abs(piece) == 1 and abs(originSquare[0] - newSquare[0]) == 2):
+            # ali je možno narediti en passant
+            if(newSquare[0] != 0 and self.currBoard[newSquare[0]-1][newSquare[1]] == -piece or newSquare[0] != self.boardSize-1 and self.currBoard[newSquare[0]+1][newSquare[1]]):
+                if(piece < 0):
+                    self.enPassantSquare=[newSquare[0]+1, newSquare[1]]
+                else:
+                    self.enPassantSquare=[newSquare[0]-1, newSquare[1]]
+        # polpoteze od zadnjega premika kmeta ali ujetja
+        if(legalMoves == 2):
+            if(isWhiteToMove):
+                self.halfMoves[0] += 1
+            else:
+                self.halfMoves[1] += 1
+        else:
+            self.halfMoves = (0,0)
+        self.moves.append([(originSquare),(newSquare)])
+        return True
+        #castling TODO
+
+
     #def calculateLegalMoves(row,column,board,legalMoves,isWhiteToMove):
     def _calculateLegalMoves(self, row, column, legalMoves):
         if(self.isWhiteToMove and self.currBoard[row][column] > 0 or (not self.isWhiteToMove and self.currBoard[row][column] < 0)):
@@ -77,40 +111,6 @@ class ChessBoard:
                 legalMovesKing(row,column,self.currBoard,legalMoves)
                 return
 
-    def makeMove(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
-        legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
-        if(legalMoves[newSquare[0]][newSquare[1]] < 2):
-            return False
-        
-        self.isWhiteToMove = not self.isWhiteToMove
-        # izvedem potezo
-        piece = self.currBoard[newSquare[0]][newSquare[1]]
-        self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
-        self.currBoard[originSquare[0]][originSquare[1]] = 0
-        #preverim ostale spremenljivke
-
-        #preverjanje en passant
-        if(abs(piece) == 1 and abs(originSquare[0] - newSquare[0]) == 2):
-            # ali je možno narediti en passant
-            if(newSquare[0] != 0 and self.currBoard[newSquare[0]-1][newSquare[1]] == -piece or newSquare[0] != self.boardSize-1 and self.currBoard[newSquare[0]+1][newSquare[1]]):
-                if(piece < 0):
-                    self.enPassantSquare=[newSquare[0]+1, newSquare[1]]
-                else:
-                    self.enPassantSquare=[newSquare[0]-1, newSquare[1]]
-        # polpoteze od zadnjega premika kmeta ali ujetja
-        if(legalMoves == 2):
-            if(isWhiteToMove):
-                self.halfMoves[0] += 1
-            else:
-                self.halfMoves[1] += 1
-        else:
-            self.halfMoves = (0,0)
-        self.moves.append([(originSquare),(newSquare)])
-        return True
-        #castling TODO
-
-
-
 
 
 
@@ -148,6 +148,16 @@ class ChessBoard:
         if row < 0 or row > boardSize-1 or column < 0 or boardSize-1: 
             return False
         return self.board[row][column] == 0
+
+    def _isLegalTake(self, row, column):
+    if row < 0 or row > boardSize or column < 0 or column > boardSize: 
+        return False
+    
+    if self.isWhiteToMove and self.currBoard[row][column] >= 0:
+        return False
+    if (not self.isWhiteToMove) and self.currBoard[row][column] <= 0:
+        return False
+    return True
     
 #end of class
 

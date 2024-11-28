@@ -2,6 +2,7 @@ import socket
 import threading
 from cryptography.fernet import Fernet
 
+ # Vrata strežnika
 SERVER_IP = "127.0.0.1"  # IP naslov strežnika
 PORT = 1234  # Vrata strežnika
 BUFFER = 1024  # Medpomnilnik za prejemanje podatkov

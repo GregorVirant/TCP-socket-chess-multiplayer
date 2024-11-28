@@ -34,9 +34,9 @@ isWhiteToMove=[True]
 chessBoard = ChessBoard(BoardType.STANDARD)
 while run:
         #can add fps limit
+        
         run = not game.shouldQuit()
 
-        
 
         if game.mouseClickedOnBoard(): 
                 position=game.mouseGetBoardPosition() #x,y (column,row)
@@ -51,10 +51,6 @@ while run:
                 elif legalMoves[row][column] == 0: #when user click on a non selected square
 
                         legalMoves = chessBoard.getLegalMoves(row, column)
-                        #print(legalMoves)
-                        #clearLegalMoves(legalMoves)
-                        #calculateLegalMoves(row,column,board,legalMoves, isWhiteToMove)
-
                 else: #user already selected a piece, now he wants to move it
 
                         pieceRow=0
@@ -80,5 +76,5 @@ while run:
 
 
         #print(legalMoves)
-        game.draw(board,legalMoves,1)
+        game.draw(chessBoard.getBoard(),legalMoves,1)
 game.close()

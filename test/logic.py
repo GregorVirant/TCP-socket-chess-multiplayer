@@ -35,7 +35,7 @@ class ChessBoard:
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves
-        #print(f"empty board: {legalMoves}")
+
         self._calculateLegalMoves(row, column, legalMoves)
         return legalMoves
 
@@ -47,19 +47,21 @@ class ChessBoard:
         
         self.isWhiteToMove = not self.isWhiteToMove
         # izvedem potezo
-        piece = self.currBoard[newSquare[0]][newSquare[1]]
+        piece = self.currBoard[originSquare[0]][originSquare[1]]
+        if(abs(piece) == 1 and self.enPassantSquare == [newSquare[0], newSquare[1]]):
+            self.currBoard[originSquare[0]][newSquare[1]] = 0
         self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
         self.currBoard[originSquare[0]][originSquare[1]] = 0
         #preverim ostale spremenljivke
 
         #preverjanje en passant
         if(abs(piece) == 1 and abs(originSquare[0] - newSquare[0]) == 2):
-            # ali je možno narediti en passant
-            if(newSquare[0] != 0 and self.currBoard[newSquare[0]-1][newSquare[1]] == -piece or newSquare[0] != self.boardSize-1 and self.currBoard[newSquare[0]+1][newSquare[1]]):
-                if(piece < 0):
-                    self.enPassantSquare=[newSquare[0]+1, newSquare[1]]
-                else:
-                    self.enPassantSquare=[newSquare[0]-1, newSquare[1]]
+           
+            # nastavim polje
+           
+            self.enPassantSquare=[int((originSquare[0] + newSquare[0]) / 2), newSquare[1]]
+        else:
+            self.enPassantSquare=[]
         # polpoteze od zadnjega premika kmeta ali ujetja
         if(legalMoves == 2):
             if(self.isWhiteToMove):
@@ -83,7 +85,7 @@ class ChessBoard:
             piece = abs(self.currBoard[row][column])
             
             if piece == 1: # kmet
-                legalMovesPawn(row,column,self.currBoard,legalMoves)
+                self._legalMovesPawn(row,column, legalMoves)
                 
                 return
 
@@ -146,12 +148,12 @@ class ChessBoard:
 
     
     def _isLegal(self, row, column):
-        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1: 
+        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1 < column: 
             return False
-        return self.board[row][column] == 0
+        return self.currBoard[row][column] == 0
 
     def _isLegalTake(self, row, column):
-        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1: 
+        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1 <column: 
             return False
     
         if self.isWhiteToMove and self.currBoard[row][column] >= 0:
@@ -159,6 +161,27 @@ class ChessBoard:
         if (not self.isWhiteToMove) and self.currBoard[row][column] <= 0:
             return False
         return True
+    def _legalMovesPawn(self,row,column,legalMoves):
+        #nastavim barvo
+        if self.currBoard[row][column] > 0:
+            color = -1
+        else:
+            color = 1
+        
+        # premik za 1 naprej
+        if self._isLegal(row + color, column):
+            legalMoves[row + color][column] = 2
+            # premik za 2 iz osnovnega polja
+            if (row == 6 and self._isLegal(row - 2, column) and color == -1) or (row == 1 and self._isLegal(row + 2, column) and color == 1): #dvojna poteza
+                legalMoves[row + color * 2][column] = 2
+        # ujem figure v eno stran
+        if self._isLegalTake(row + color, column + color) or self.enPassantSquare == [row + color, column + color]: # ujem figure s kmetom ali en passant
+            legalMoves[row + color][column + color] = 3
+        # ujem figure v drugo stran
+        if self._isLegalTake(row + color, column - color) or self.enPassantSquare == [row + color, column - color]: #ujem figure ali en-passant
+            legalMoves[row + color][column - color] = 3
+
+
     
 #end of class
 

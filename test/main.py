@@ -4,6 +4,7 @@ from logic import *
 
 
 
+
 run = True
 game=Game(1.3)  #class for displaying the game and taking user input   (game scale)
 game.loadNextTexture() #loads figure textures (folder for textures, figures scale)
@@ -41,14 +42,15 @@ game.addButton("Change texture",game.loadNextTexture,(630,5),(220,30),buttonColo
 game.addTextField(5,54,865)
 #game.addTextField(5,300,865)
 game.addButton("Create",create,(150,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-game.addButton("Join",join,(230,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+game.addButton("Join",join,(230,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")      
 
-while run: 
-        game.loadEvents()
+chessBoard = ChessBoard(BoardType.STANDARD)
+while run:
         #can add fps limit
+        game.loadEvents()
         run=not game.shouldQuit()
         #Should run on every cycle
-        game.mouseClickedUpdate()
+        game.mouseClickedUpdate()       
 
         clicked = game.buttonAndTextFieldCalculations()
         
@@ -56,15 +58,17 @@ while run:
                 position=game.mouseGetBoardPosition() #x,y (column,row)
                 row=position[1]
                 column=position[0]
+
                 
                 if legalMoves[row][column]==1: #when user click on the already selected square
+
                         clearLegalMoves(legalMoves)
 
-                elif legalMoves[row][column]==0: #when user click on a non selected square
-                        clearLegalMoves(legalMoves)
-                        calculateLegalMoves(row,column,board,legalMoves, isWhiteToMove)
+                elif legalMoves[row][column] == 0: #when user click on a non selected square
 
+                        legalMoves = chessBoard.getLegalMoves(row, column)
                 else: #user already selected a piece, now he wants to move it
+
                         pieceRow=0
                         pieceColumn=0
                         for i in range(8):
@@ -73,11 +77,14 @@ while run:
                                                 pieceRow=i
                                                 pieceColumn=j
                                                 isWhiteToMove[0]=not isWhiteToMove[0]
+                        chessBoard.makeMove((pieceRow, pieceColumn),(row, column))
                         move(pieceRow,pieceColumn,row,column,board)
-                        clearLegalMoves(legalMoves)
+                        legalMoves = chessBoard._getEmptyBoard()
+                
 
         #Write text
         game.addText("White to move",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
 
-        game.draw(board,legalMoves)
+        #print(legalMoves)
+        game.draw(chessBoard.getBoard(),legalMoves)
 game.close()

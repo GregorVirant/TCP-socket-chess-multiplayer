@@ -24,6 +24,8 @@ class Game:
         self.textImagesPermanentCoordinates = []
 
         self.buttons = []
+        self.textFields = []
+        self.textFieldSelected=None
 
         self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
 
@@ -31,6 +33,10 @@ class Game:
         self.texture=0
 
         self.mouseClicked = False
+
+        self.eventQuit = False
+        self.eventCharWritten = ""
+        self.eventCharDeleted = False
         
     def loadNextTexture(self):
         if self.texture >= len(self.textures):
@@ -58,11 +64,25 @@ class Game:
             self.texturesWhite[i] = pygame.transform.scale(self.texturesWhite[i],(self.texture_width,self.texture_hight))
             self.texturesBlack[i] = pygame.transform.scale(self.texturesBlack[i],(self.texture_width,self.texture_hight)) 
 
-    def shouldQuit(self):
+    # def shouldQuit(self):
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             return True
+    #     return False
+    def loadEvents(self):
+        self.eventCharDeleted=False
+        self.eventCharWritten=""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return True
-        return False
+                self.eventQuit = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    self.eventCharDeleted=True
+                else:
+                    self.eventCharWritten=event.unicode
+    def shouldQuit(self):
+        return self.eventQuit        
+            
     def close(self):
         pygame.quit()
 
@@ -84,8 +104,6 @@ class Game:
             return False
         #return True ionstead of bottom
         return self.mouseClicked
-
-
 
     def mouseGetBoardPosition(self):
         position=pygame.mouse.get_pos()
@@ -120,7 +138,6 @@ class Game:
         textImageRect = textImage.get_rect(center=buttonRect.center)
         b1=Button(textImage,textImageRect,buttonRect,action,buttonColor,borderRadius,hoverColor)
         self.buttons.append(b1) 
-
     def buttonsCalculateCliks(self):
         for button in self.buttons:
             position=pygame.mouse.get_pos()
@@ -128,8 +145,73 @@ class Game:
             posY=round(position[1]/self.scale)
             if button.calculateClick(posX,posY,self.mouseClicked):
                 return True
+        return False    
+    def addTextField(self,length,x,y,font=None,fontSize=40,bold=True,color=(255,255,255),borderColor=(0,0,0),selectedBorderColor=(255,0,0),hoveredBorderColor=(0,0,200),textColor=(0,0,0),borderWidth=4,borderRadius=5,onlyNumbers=False):
+        tf = textField(length,x,y,font,fontSize,bold,color,borderColor,selectedBorderColor,hoveredBorderColor,textColor,borderWidth,borderRadius,onlyNumbers)
+        self.textFields.append(tf)
 
-    def draw(self,board,colorMatrix,colorToMove):
+    def calculateSelectedTextField(self):
+        for tf in self.textFields:
+            position=pygame.mouse.get_pos()
+            posX=round(position[0]/self.scale)
+            posY=round(position[1]/self.scale)
+            tf1 = tf.selected(posX,posY,self.mouseClicked)
+            if tf1:
+                self.textFieldSelected=tf1
+                return True
+        return False
+    
+    def hoverButtonsAndTextFields(self,posX,posY):
+        
+        for tf in self.textFields:
+            if tf.hover(posX,posY,self.textFieldSelected):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                return
+        for button in self.buttons:
+            if button.hover(posX,posY):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                return
+        
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+
+    def buttonAndTextFieldCalculations(self):
+        #ce en tekstfield selectan pogledamo ce klikjeno dolj drgace pisemo v njega
+        position=pygame.mouse.get_pos()
+        posX=round(position[0]/self.scale)
+        posY=round(position[1]/self.scale)
+
+        self.hoverButtonsAndTextFields(posX,posY)
+
+        if self.textFieldSelected:
+            if self.mouseClicked and not self.textFieldSelected.selected(posX,posY,self.mouseClicked):
+                #print("klikjen dolj")
+                self.textFieldSelected=None
+            elif self.mouseClicked:
+                #print("klikjen na sebe")
+                self.textFieldSelected=None
+                return True
+            else:
+                if self.eventCharWritten:
+                    self.textFieldSelected.write(self.eventCharWritten)
+                if self.eventCharDeleted:
+                    self.textFieldSelected.deleteLastChar()
+                return True
+        
+        if self.calculateSelectedTextField():
+            #print("selected a text field")
+            return True
+        
+        if self.buttonsCalculateCliks():
+            #print("selected a button")
+            return True
+        #print("selected nothing")
+        return False
+
+
+            
+
+    def draw(self,board,colorMatrix):
         self.board.fill(colors.LIGHT_BLUE)
         pygame.draw.rect(self.board,colors.LIGHT_PURPLE,(self.borderWidth,self.borderWidth,800,800))
 
@@ -161,6 +243,9 @@ class Game:
 
         for button in self.buttons:
             button.draw(self.board)
+
+        for textField in self.textFields:
+            textField.draw(self.board)
 
         #self.scaledScreen.blit(self.board,(0,0))
         self.scaledScreen.blit(pygame.transform.scale(self.board, (self.displayWidth,self.displayHeight)),(0,0))

@@ -4,6 +4,7 @@ from logic import *
 
 
 
+
 run = True
 game=Game(1)  #class for displaying the game and taking user input   (game scale)
 game.loadTexture("pieces1",85) #loads figure textures (folder for textures, figures scale)
@@ -29,23 +30,33 @@ legalMoves=[[0,0,0,0,0,0,0,0],
 
 isWhiteToMove=[True]
 
+
+chessBoard = ChessBoard(BoardType.STANDARD)
 while run:
         #can add fps limit
-        run=not game.shouldQuit()
+        run = not game.shouldQuit()
+
+        
 
         if game.mouseClickedOnBoard(): 
                 position=game.mouseGetBoardPosition() #x,y (column,row)
                 row=position[1]
                 column=position[0]
+
                 
                 if legalMoves[row][column]==1: #when user click on the already selected square
+
                         clearLegalMoves(legalMoves)
 
-                elif legalMoves[row][column]==0: #when user click on a non selected square
-                        clearLegalMoves(legalMoves)
-                        calculateLegalMoves(row,column,board,legalMoves, isWhiteToMove)
+                elif legalMoves[row][column] == 0: #when user click on a non selected square
+
+                        legalMoves = chessBoard.getLegalMoves(row, column)
+                        #print(legalMoves)
+                        #clearLegalMoves(legalMoves)
+                        #calculateLegalMoves(row,column,board,legalMoves, isWhiteToMove)
 
                 else: #user already selected a piece, now he wants to move it
+
                         pieceRow=0
                         pieceColumn=0
                         for i in range(8):
@@ -54,8 +65,9 @@ while run:
                                                 pieceRow=i
                                                 pieceColumn=j
                                                 isWhiteToMove[0]=not isWhiteToMove[0]
+                        chessBoard.makeMove((pieceRow, pieceColumn),(row, column))
                         move(pieceRow,pieceColumn,row,column,board)
-                        clearLegalMoves(legalMoves)
+                        legalMoves = chessBoard._getEmptyBoard()
                 
 
                         
@@ -67,6 +79,6 @@ while run:
 
 
 
-
+        #print(legalMoves)
         game.draw(board,legalMoves,1)
 game.close()

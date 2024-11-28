@@ -11,7 +11,7 @@ class BoardType(Enum):
 
 class ChessBoard:
 
-    boardSize=8
+    #boardSize=8
 
     def __init__(self, bType):
         self.startBoard = self._setBoard(bType)
@@ -21,6 +21,7 @@ class ChessBoard:
         self.moves = []
         self.castlingOptions = "KQkq"
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
+        self.boardSize=8
 
     def getBoard(self):
         return self.currBoard
@@ -61,7 +62,7 @@ class ChessBoard:
                     self.enPassantSquare=[newSquare[0]-1, newSquare[1]]
         # polpoteze od zadnjega premika kmeta ali ujetja
         if(legalMoves == 2):
-            if(isWhiteToMove):
+            if(self.isWhiteToMove):
                 self.halfMoves[0] += 1
             else:
                 self.halfMoves[1] += 1
@@ -145,19 +146,19 @@ class ChessBoard:
 
     
     def _isLegal(self, row, column):
-        if row < 0 or row > boardSize-1 or column < 0 or boardSize-1: 
+        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1: 
             return False
         return self.board[row][column] == 0
 
     def _isLegalTake(self, row, column):
-    if row < 0 or row > boardSize or column < 0 or column > boardSize: 
-        return False
+        if row < 0 or row > self.boardSize-1 or column < 0 or self.boardSize-1: 
+            return False
     
-    if self.isWhiteToMove and self.currBoard[row][column] >= 0:
-        return False
-    if (not self.isWhiteToMove) and self.currBoard[row][column] <= 0:
-        return False
-    return True
+        if self.isWhiteToMove and self.currBoard[row][column] >= 0:
+            return False
+        if (not self.isWhiteToMove) and self.currBoard[row][column] <= 0:
+            return False
+        return True
     
 #end of class
 

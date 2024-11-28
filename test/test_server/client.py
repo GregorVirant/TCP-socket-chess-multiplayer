@@ -2,14 +2,10 @@ import socket
 import threading
 from cryptography.fernet import Fernet
 
-<<<<<<< HEAD
-SERVER_IP = "147.185.221.23"  # IP naslov strežnika
-PORT = 58677  # Vrata strežnika
-=======
+ # Vrata strežnika
 SERVER_IP = "127.0.0.1"  # IP naslov strežnika
 PORT = 1234  # Vrata strežnika
->>>>>>> 48aa1cbbd6c769ebee3e6ce86c5086e64f9a34e8
-BUFFER_SIZE = 1024  # Medpomnilnik za prejemanje podatkov
+BUFFER = 1024  # Medpomnilnik za prejemanje podatkov
 
 # Ključ za simetrično kriptiranje
 key = "B8DRpjfj4ieG6zHMs7Ydn8O02MH8ZKnIMLCRoqvxFwA="

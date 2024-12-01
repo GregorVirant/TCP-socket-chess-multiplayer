@@ -82,8 +82,8 @@ while run:
                         legalMoves = chessBoard._getEmptyBoard()
                 
 
-        #Write text
-        game.addText("White to move",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        game.addText("Beli na potezi." if chessBoard.isWhiteToMove else "Črni na potezi",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+
 
         #print(legalMoves)
         game.draw(chessBoard.getBoard(),legalMoves)

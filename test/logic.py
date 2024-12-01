@@ -183,6 +183,29 @@ class ChessBoard:
 
 
     
+    def isAttacking(self, row, column):
+        originalTurn = self.isWhiteToMove
+        self.isWhiteToMove = not self.isWhiteToMove  # Obrnemo vrednost
+        for i in range(self.boardSize):
+            for j in range(self.boardSize):
+                piece = self.currBoard[i][j]
+                if (self.isWhiteToMove and piece > 0) or (not self.isWhiteToMove and piece < 0):
+                    legalMoves = self._getEmptyBoard()
+                    legalMoves = self.getLegalMoves(i, j)
+                    if legalMoves[row][column] != 0:
+                        self.isWhiteToMove = originalTurn  # Povrnemo originalno vrednost
+                        return True
+        self.isWhiteToMove = originalTurn  # Povrnemo originalno vrednost
+        return False
+    
+    def isCheck(self, isWhite):
+        for i in range(self.boardSize):
+            for j in range(self.boardSize):
+                piece = self.currBoard[i][j]
+                if (isWhite and piece == 6) or (not isWhite and piece == -6):
+                    if self.isAttacking(i, j):
+                        return True
+        return False
 #end of class
 
 

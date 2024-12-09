@@ -19,9 +19,10 @@ class ChessBoard:
         self.isWhiteToMove = True
         self.enPassantSquare = []
         self.moves = []
-        self.castlingOptions = "KQkq"
+        self.castlingOptions = [True, True, True, True] #KQkq
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
+
 
     def getBoard(self):
         return self.currBoard
@@ -29,6 +30,34 @@ class ChessBoard:
     def getStartBoard(self):
         return self.startBoard
     
+    def _isCastlingLegal(self, king_start, rook_start, king_end):
+            # Preveri, če se kralj ali trdnjava še nista premaknila
+            if self.isWhiteToMove:
+                if king_start[1] == 4 and rook_start[1] == 7 and not self.castlingOptions[0]: #K
+                    return False
+                if king_start[1] == 4 and rook_start[1] == 0 and not self.castlingOptions[1]: #Q
+                    return False
+            else:
+                if king_start[1] == 4 and rook_start[1] == 7 and not self.castlingOptions[2]: #k
+                    return False
+                if king_start[1] == 4 and rook_start[1] == 0 and not self.castlingOptions[3]: #q
+                    return False
+                
+            # Preveri, če ni figur med kraljem in trdnjavo
+            if rook_start[1] > king_start[1]:
+                step = 1 # desno
+            else:
+                step = -1 # levo
+            for col in range(king_start[1] + step, rook_start[1], step):
+                if self.currBoard[king_start[0]][col] != 0:
+                    return False
+            
+            # Preveri, če kralj ni pod napadom med premikom
+            for col in range(king_start[1], king_end[1] + step, step):
+                if self.isAttacking(king_start[0], col):
+                    return False
+            
+            return True
     
     def getLegalMoves(self, row, column):
         legalMoves = self._getEmptyBoard()
@@ -45,9 +74,46 @@ class ChessBoard:
         if(legalMoves[newSquare[0]][newSquare[1]] < 2):
             return False
         
+        piece = self.currBoard[originSquare[0]][originSquare[1]]
+
+        # Preveri legalnost rokade
+        if abs(piece) == 6:
+            if newSquare == (originSquare[0], originSquare[1] + 2):  # Kingside rokada
+                if not self._isCastlingLegal(originSquare, (originSquare[0], 7), newSquare):
+                    return False
+                # Premakni trdnjavo
+                self.currBoard[originSquare[0]][5] = self.currBoard[originSquare[0]][7]
+                self.currBoard[originSquare[0]][7] = 0
+            elif newSquare == (originSquare[0], originSquare[1] - 2):  # Queenside rokada
+                if not self._isCastlingLegal(originSquare, (originSquare[0], 0), newSquare):
+                    return False
+                # Premakni trdnjavo
+                self.currBoard[originSquare[0]][3] = self.currBoard[originSquare[0]][0]
+                self.currBoard[originSquare[0]][0] = 0
+        
+        # Posodobi premike kralja in trdnjave
+        if (abs(piece) == 6):
+            if self.isWhiteToMove:
+                self.castlingOptions[0] = False
+                self.castlingOptions[1] = False
+            else:
+                self.castlingOptions[2] = False
+                self.castlingOptions[3] = False
+        elif (abs(piece) == 2):
+            if self.isWhiteToMove:
+                if originSquare[1] == 0:
+                    self.castlingOptions[1] = False
+                elif originSquare[1] == 7:
+                    self.castlingOptions[0] = False
+            else:
+                if originSquare[1] == 0:
+                    self.castlingOptions[3] = False
+                elif originSquare[1] == 7:
+                    self.castlingOptions[2] = False
+
         self.isWhiteToMove = not self.isWhiteToMove
         # izvedem potezo
-        piece = self.currBoard[originSquare[0]][originSquare[1]]
+        
         if(abs(piece) == 1 and self.enPassantSquare == [newSquare[0], newSquare[1]]):
             self.currBoard[originSquare[0]][newSquare[1]] = 0
         self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
@@ -111,7 +177,7 @@ class ChessBoard:
 
 
             if piece == 6: # kralj
-                legalMovesKing(row,column,self.currBoard,legalMoves)
+                self.legalMovesKing(row,column,self.currBoard,legalMoves)
                 return
 
 
@@ -206,6 +272,72 @@ class ChessBoard:
                     if self.isAttacking(i, j):
                         return True
         return False
+    
+    def legalMovesKing(self, row, column, board, legalMoves):
+        if board[row][column] > 0:
+            color = True
+        else:
+            color = False
+        
+        vectors = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
+        for i in vectors:
+            moveRow = i[0]
+            moveColumn = i[1]
+            if isLegal(row + moveRow, column + moveColumn, board):
+                legalMoves[row + moveRow][column + moveColumn] = 2
+            elif isLegalTake(color, row + moveRow, column + moveColumn, board):
+                legalMoves[row + moveRow][column + moveColumn] = 3
+
+        # Preveri rokado na kraljevi strani
+        if color and board[row][column] == 6:  # Beli kralj
+            if self.castlingOptions[0] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                legalMoves[row][column + 2] = 2
+            if self.castlingOptions[1] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                legalMoves[row][column - 2] = 2
+        elif not color and board[row][column] == -6:  # Črni kralj
+            if self.castlingOptions[2] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                legalMoves[row][column + 2] = 2
+            if self.castlingOptions[3] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                legalMoves[row][column - 2] = 2
+
+
+    def calculateLegalMoves(self, row,column,board,legalMoves,isWhiteToMove):
+        if(isWhiteToMove[0] and board[row][column] > 0 or (not isWhiteToMove[0] and board[row][column] < 0)):
+            
+            legalMoves[row][column] = 1
+            if board[row][column] == 0:
+                return
+            piece = abs(board[row][column])
+            
+            if piece == 1: # kmet
+                legalMovesPawn(row,column,board,legalMoves)
+                
+                return
+
+            if piece == 2: # trdnjava
+                legalMovesRook(row,column,board,legalMoves)
+                
+                return
+            
+            if piece == 3: # skakač
+                legalMovesKnight(row,column,board,legalMoves)
+                
+                return
+            
+            if piece == 4: # tekač
+                legalMovesBishop(row,column,board,legalMoves)
+                
+                return
+
+            if piece == 5: # kraljica je kombinacija trdnjave in tekača
+                legalMovesBishop(row,column,board,legalMoves)
+                legalMovesRook(row,column,board,legalMoves)
+                return
+
+
+            if piece == 6: # kralj
+                self.legalMovesKing(row,column,board,legalMoves)
+                return
 #end of class
 
 
@@ -288,7 +420,7 @@ def legalMovesRook(row, column, board, legalMoves):
     for i in range(4):
         moveRow = vectors[i][0]
         moveColumn = vectors[i][1]
-        for j in range(1,7):
+        for j in range(1,8):
             if isLegal(row + j * moveRow, column + j * moveColumn, board):
                 legalMoves[row + j * moveRow][column + j * moveColumn] = 2
             elif isLegalTake(color, row + j * moveRow, column + j * moveColumn, board):
@@ -313,65 +445,7 @@ def legalMovesKnight(row, column, board, legalMoves):
             legalMoves[row + moveRow][column + moveColumn] = 2
         elif isLegalTake(color, row + moveRow, column + moveColumn, board):
             legalMoves[row + moveRow][column + moveColumn] = 3
-
-def legalMovesKing(row, column, board, legalMoves):
-    if board[row][column] > 0:
-        color = True
-    else:
-        color = False
-    
-    vectors = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
-    for i in vectors:
-        moveRow = i[0]
-        moveColumn = i[1]
-        if isLegal(row + moveRow, column + moveColumn, board):
-            legalMoves[row + moveRow][column + moveColumn] = 2
-        elif isLegalTake(color, row + moveRow, column + moveColumn, board):
-            legalMoves[row + moveRow][column + moveColumn] = 3
-
-
-        
-
-def calculateLegalMoves(row,column,board,legalMoves,isWhiteToMove):
-    if(isWhiteToMove[0] and board[row][column] > 0 or (not isWhiteToMove[0] and board[row][column] < 0)):
-        
-        legalMoves[row][column] = 1
-        if board[row][column] == 0:
-            return
-        piece = abs(board[row][column])
-        
-        if piece == 1: # kmet
-            legalMovesPawn(row,column,board,legalMoves)
-            
-            return
-
-        if piece == 2: # trdnjava
-            legalMovesRook(row,column,board,legalMoves)
-            
-            return
-        
-        if piece == 3: # skakač
-            legalMovesKnight(row,column,board,legalMoves)
-            
-            return
-        
-        if piece == 4: # tekač
-            legalMovesBishop(row,column,board,legalMoves)
-            
-            return
-
-        if piece == 5: # kraljica je kombinacija trdnjave in tekača
-            legalMovesBishop(row,column,board,legalMoves)
-            legalMovesRook(row,column,board,legalMoves)
-            return
-
-
-        if piece == 6: # kralj
-            legalMovesKing(row,column,board,legalMoves)
-            return
-
-    
-
+      
     
 def move(pieceRow,pieceColumn,clickedRow,clickedColumn,board):
     board[clickedRow][clickedColumn]=board[pieceRow][pieceColumn]

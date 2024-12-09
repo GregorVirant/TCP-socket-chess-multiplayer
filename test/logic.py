@@ -42,9 +42,7 @@ class ChessBoard:
                     return False
                 if king_start[1] == 4 and rook_start[1] == 0 and not self.castlingOptions[3]: #q
                     return False
-            #preveri če je kralj pod napadom
-            if self.isAttacking(king_start[0], king_start[1]):
-                return False
+                
             # Preveri, če ni figur med kraljem in trdnjavo
             if rook_start[1] > king_start[1]:
                 step = 1 # desno

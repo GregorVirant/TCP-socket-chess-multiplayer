@@ -28,8 +28,6 @@ legalMoves=[[0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0]]
 
-isWhiteToMove=[True]
-
 def create():
         print(f"#CREATE|{game.textFields[0].read()[1:]}|")
         game.textFields[0].clear()
@@ -62,7 +60,7 @@ while run:
                 
                 if legalMoves[row][column]==1: #when user click on the already selected square
 
-                        clearLegalMoves(legalMoves)
+                        legalMoves = chessBoard._getEmptyBoard()
 
                 elif legalMoves[row][column] == 0: #when user click on a non selected square
 
@@ -76,9 +74,8 @@ while run:
                                         if legalMoves[i][j]==1:
                                                 pieceRow=i
                                                 pieceColumn=j
-                                                isWhiteToMove[0]=not isWhiteToMove[0]
                         chessBoard.makeMove((pieceRow, pieceColumn),(row, column))
-                        move(pieceRow,pieceColumn,row,column,board)
+                        #move(pieceRow,pieceColumn,row,column,board)
                         legalMoves = chessBoard._getEmptyBoard()
                 
 

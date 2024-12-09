@@ -54,7 +54,7 @@ class ChessBoard:
             
             # Preveri, če kralj ni pod napadom med premikom
             for col in range(king_start[1], king_end[1] + step, step):
-                if self.isAttacking(king_start[0], col):
+                if self._isAttacking(king_start[0], col):
                     return False
             
             return True
@@ -177,7 +177,7 @@ class ChessBoard:
 
 
             if piece == 6: # kralj
-                self.legalMovesKing(row,column,self.currBoard,legalMoves)
+                self._legalMovesKing(row,column,self.currBoard,legalMoves)
                 return
 
 
@@ -249,7 +249,7 @@ class ChessBoard:
 
 
     
-    def isAttacking(self, row, column):
+    def _isAttacking(self, row, column):
         originalTurn = self.isWhiteToMove
         self.isWhiteToMove = not self.isWhiteToMove  # Obrnemo vrednost
         for i in range(self.boardSize):
@@ -269,11 +269,11 @@ class ChessBoard:
             for j in range(self.boardSize):
                 piece = self.currBoard[i][j]
                 if (isWhite and piece == 6) or (not isWhite and piece == -6):
-                    if self.isAttacking(i, j):
+                    if self._isAttacking(i, j):
                         return True
         return False
     
-    def legalMovesKing(self, row, column, board, legalMoves):
+    def _legalMovesKing(self, row, column, board, legalMoves):
         if board[row][column] > 0:
             color = True
         else:

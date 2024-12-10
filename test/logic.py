@@ -54,18 +54,56 @@ class ChessBoard:
             
             # Preveri, če kralj ni pod napadom med premikom
             for col in range(king_start[1], king_end[1] + step, step):
-                if self._isAttacking(king_start[0], col):
+                if self._isUnderAttack(king_start[0], col):
                     return False
             
             return True
     
-    def getLegalMoves(self, row, column):
+    def _isMoveLegalNoCheckAfterMove(self,row,column,targetRow,targetColumn):
+        board = []
+        for row1 in self.currBoard:
+            newRow=[]
+            for element in row1:
+                newRow.append(element)
+            board.append(newRow)
+
+        self.currBoard[targetRow][targetColumn]=self.currBoard[row][column]
+        self.currBoard[row][column]=0
+        if self.isCheck(self.isWhiteToMove):
+            self.currBoard = board
+            return False
+        self.currBoard = board
+        return True
+
+    def _findCurrentlySelected(self,legalMoves):
+        for row in range(8):
+            for column in range(8):
+                if legalMoves[row][column] == 1:
+                    return (row, column)
+        return (None,None)
+
+    def _areMovesLegalNoCheckAfterMove(self,legalMoves):
+        row,column = self._findCurrentlySelected(legalMoves)
+        if row == None:
+            print("No piece selected.")
+        
+        for rowT in range(8):
+            for columnT in range(8):
+                if legalMoves[rowT][columnT]>1:
+                    if not self._isMoveLegalNoCheckAfterMove(row,column, rowT, columnT):
+                        legalMoves[rowT][columnT] = 0
+
+    def getLegalMoves(self, row, column, checkForCheck = True):
         legalMoves = self._getEmptyBoard()
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves
 
         self._calculateLegalMoves(row, column, legalMoves)
+
+        if checkForCheck:
+            self._areMovesLegalNoCheckAfterMove(legalMoves)
+
         return legalMoves
 
     
@@ -185,7 +223,7 @@ class ChessBoard:
             return False
         return True
     
-    def _isAttacking(self, row, column):
+    def _isUnderAttack(self, row, column):
         originalTurn = self.isWhiteToMove
         self.isWhiteToMove = not self.isWhiteToMove  # Obrnemo vrednost
         for i in range(self.boardSize):
@@ -193,7 +231,7 @@ class ChessBoard:
                 piece = self.currBoard[i][j]
                 if (self.isWhiteToMove and piece > 0) or (not self.isWhiteToMove and piece < 0):
                     legalMoves = self._getEmptyBoard()
-                    legalMoves = self.getLegalMoves(i, j)
+                    legalMoves = self.getLegalMoves(i, j, checkForCheck=False)
                     if legalMoves[row][column] != 0:
                         self.isWhiteToMove = originalTurn  # Povrnemo originalno vrednost
                         return True
@@ -205,7 +243,7 @@ class ChessBoard:
             for j in range(self.boardSize):
                 piece = self.currBoard[i][j]
                 if (isWhite and piece == 6) or (not isWhite and piece == -6):
-                    if self._isAttacking(i, j):
+                    if self._isUnderAttack(i, j):
                         return True
         return False
     def _legalMovesPawn(self,row,column,legalMoves):

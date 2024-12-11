@@ -8,9 +8,11 @@ gui.loadNextTexture() #loads figure textures (folder for textures, figures scale
 
 uniqueIDRequiered = False
 gameCodeRequiered = False
+
 def createGame():
     global uniqueIDRequiered, gameCodeRequiered
-    playGame.startSocket()
+    playGame.startSocket(playGame.board)
+    print(playGame.board)
     uId = gui.readTextField(0)
     if uId == "":
         uniqueIDRequiered = True
@@ -26,7 +28,7 @@ def createGame():
 
 def joinGame():
     global uniqueIDRequiered, gameCodeRequiered
-    playGame.startSocket()
+    playGame.startSocket(playGame.board)
 
     uId = gui.readTextField(0)
     if uId == "":

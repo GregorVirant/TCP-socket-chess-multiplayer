@@ -1,5 +1,7 @@
+import copy
 import socket
 import threading
+import ast
 
 SERVER_IP = '127.0.0.1'
 PORT = 1234
@@ -9,9 +11,11 @@ BUFFER_SIZE = 1024
 current_game_code = None
 unique_id = None
 clientSocket = None
+board = None
 
-def startSocket():
-    global clientSocket
+def startSocket(board1):
+    global clientSocket, board
+    board = board1
     
     try:
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,7 +51,8 @@ def listen_to_server(client,tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code
+    global current_game_code, board
+    print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
         if "Igra je bila ustvarjena" in message:
@@ -58,6 +63,18 @@ def handle_server_response(protocol, message):
         print(f"SPOROČILO: {message}")
     elif protocol == "#GAMEID":
         current_game_code = message
+    elif protocol == "#BOARD":
+        board2 = ast.literal_eval(message)
+        for i in range(8):
+            for j in range(8):
+                board[i][j] = board2[i][j]
+        print(f"BOARD: {board}")
+    elif protocol == "#TURN":
+        print(f"TURN: {message}")
+    elif protocol == "#END":
+        print(f"END: {message}")
+    else:
+        print(f"Neznana koda: {protocol} - {message}")
 
 def send_message(protocol, message):
     try:

@@ -71,9 +71,9 @@ class textField():
             return
         self.text=self.text[0:-1]
     def clear(self):
-        self.text=""
+        self.text=" "
     def read(self):
-        return self.text
+        return self.text[1:]
     def selected(self,posX,posY,isPressed):
         if self.rect.collidepoint((posX,posY)):
             if isPressed:

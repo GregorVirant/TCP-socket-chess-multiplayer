@@ -25,14 +25,14 @@ class Gui:
         self.square_size = 100
         self.mouseIsPressed = False
 
-        self.textImages = []
-        self.textImagesCoordinates = []
-        self.textImagesPermanent = []
-        self.textImagesPermanentCoordinates = []
+        self.textImages = [[],[]]
+        self.textImagesCoordinates = [[],[]]
+        self.textImagesPermanent = [[],[]]
+        self.textImagesPermanentCoordinates = [[],[]]
 
         self.buttons = [[],[]]
-        self.textFields = []
-        self.textFieldSelected=None
+        self.textFields = [[],[]]
+        self.textFieldSelected=[None,None]
 
         self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
 
@@ -128,11 +128,11 @@ class Gui:
     def addText(self,text,coordinates=(0,0),fontSize=50,color=colors.BLACK,font=None,bold=False,isPermanent=False):
         selectedFont = pygame.font.SysFont(font,fontSize,bold=bold)
         if isPermanent:
-            self.textImagesPermanent.append(selectedFont.render(text,True,color))
-            self.textImagesPermanentCoordinates.append(coordinates)        
+            self.textImagesPermanent[self.state].append(selectedFont.render(text,True,color))
+            self.textImagesPermanentCoordinates[self.state].append(coordinates)        
             return
-        self.textImages.append(selectedFont.render(text,True,color))
-        self.textImagesCoordinates.append(coordinates)        
+        self.textImages[self.state].append(selectedFont.render(text,True,color))
+        self.textImagesCoordinates[self.state].append(coordinates)        
 
     def addButton(self,text,action,buttonCoordinates=(0,0),buttonSize=None,buttonColor = colors.WHITE,fontSize=50,textColor=colors.BLACK,font=None,borderRadius=0,hoverColor=colors.LIGHT_PURPLE,bold=False):#isPermanent
         selectedFont = pygame.font.SysFont(font,fontSize,bold=bold)
@@ -155,23 +155,26 @@ class Gui:
         return False    
     def addTextField(self,length,x,y,font=None,fontSize=40,bold=True,color=(255,255,255),borderColor=(0,0,0),selectedBorderColor=(255,0,0),hoveredBorderColor=(0,0,200),textColor=(0,0,0),borderWidth=4,borderRadius=5,onlyNumbers=False):
         tf = textField(length,x,y,font,fontSize,bold,color,borderColor,selectedBorderColor,hoveredBorderColor,textColor,borderWidth,borderRadius,onlyNumbers)
-        self.textFields.append(tf)
+        self.textFields[self.state].append(tf)
+
+    def readTextField(self,num):
+        return self.textFields[self.state][num].read()
 
     def calculateSelectedTextField(self):
-        for tf in self.textFields:
+        for tf in self.textFields[self.state]:
             position=pygame.mouse.get_pos()
             posX=round(position[0]/self.scale)
             posY=round(position[1]/self.scale)
             tf1 = tf.selected(posX,posY,self.mouseClicked)
             if tf1:
-                self.textFieldSelected=tf1
+                self.textFieldSelected[self.state]=tf1
                 return True
         return False
     
     def hoverButtonsAndTextFields(self,posX,posY):
         
-        for tf in self.textFields:
-            if tf.hover(posX,posY,self.textFieldSelected):
+        for tf in self.textFields[self.state]:
+            if tf.hover(posX,posY,self.textFieldSelected[self.state]):
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
                 return
         for button in self.buttons[self.state]:
@@ -190,19 +193,19 @@ class Gui:
 
         self.hoverButtonsAndTextFields(posX,posY)
 
-        if self.textFieldSelected:
-            if self.mouseClicked and not self.textFieldSelected.selected(posX,posY,self.mouseClicked):
+        if self.textFieldSelected[self.state]:
+            if self.mouseClicked and not self.textFieldSelected[self.state].selected(posX,posY,self.mouseClicked):
                 #print("klikjen dolj")
-                self.textFieldSelected=None
+                self.textFieldSelected[self.state]=None
             elif self.mouseClicked:
                 #print("klikjen na sebe")
-                self.textFieldSelected=None
+                self.textFieldSelected[self.state]=None
                 return True
             else:
                 if self.eventCharWritten:
-                    self.textFieldSelected.write(self.eventCharWritten)
+                    self.textFieldSelected[self.state].write(self.eventCharWritten)
                 if self.eventCharDeleted:
-                    self.textFieldSelected.deleteLastChar()
+                    self.textFieldSelected[self.state].deleteLastChar()
                 return True
         
         if self.calculateSelectedTextField():
@@ -229,11 +232,19 @@ class Gui:
 
     def drawMenu(self):
         self.menu.fill(colors.PURPLE)
-        
-        
+        for i, textImage in enumerate(self.textImages[self.state]):
+            self.menu.blit(textImage,self.textImagesCoordinates[self.state][i])
+        self.textImages[self.state].clear()
+        self.textImagesCoordinates[self.state].clear()
+
+        for i, textImage in enumerate(self.textImagesPermanent[self.state]):
+            self.menu.blit(textImage,self.textImagesPermanentCoordinates[self.state][i])
+
         for button in self.buttons[self.state]:
-            #print("Drawing button")
             button.draw(self.menu)
+
+        for textField in self.textFields[self.state]:
+            textField.draw(self.menu)
 
 
         self.scaledScreen.blit(pygame.transform.scale(self.menu, (self.displayWidth,self.displayHeight)),(0,0))
@@ -262,18 +273,18 @@ class Gui:
                     self.board.blit(self.texturesBlack[(board[i][j])*-1-1],(self.square_size*j+self.texture_shift+self.borderWidth,self.square_size*i-self.texture_hight+self.texture_width+self.texture_shift+self.borderWidth))
 
         
-        for i, textImage in enumerate(self.textImages):
-            self.board.blit(textImage,self.textImagesCoordinates[i])
-        self.textImages.clear()
-        self.textImagesCoordinates.clear()
+        for i, textImage in enumerate(self.textImages[self.state]):
+            self.board.blit(textImage,self.textImagesCoordinates[self.state][i])
+        self.textImages[self.state].clear()
+        self.textImagesCoordinates[self.state].clear()
 
-        for i, textImage in enumerate(self.textImagesPermanent):
-            self.board.blit(textImage,self.textImagesPermanentCoordinates[i])
+        for i, textImage in enumerate(self.textImagesPermanent[self.state]):
+            self.board.blit(textImage,self.textImagesPermanentCoordinates[self.state][i])
 
         for button in self.buttons[self.state]:
             button.draw(self.board)
 
-        for textField in self.textFields:
+        for textField in self.textFields[self.state]:
             textField.draw(self.board)
 
         #self.scaledScreen.blit(self.board,(0,0))

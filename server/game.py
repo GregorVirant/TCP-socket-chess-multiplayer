@@ -1,3 +1,6 @@
+import chessLogic
+import random
+
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
     def __init__(self, gameID,socketC1,uniqueCodeC1):
@@ -5,9 +8,12 @@ class Game:
         self.socketC1 = socketC1
         self.uniqueCodeC1 = uniqueCodeC1
         self.socketC2 = None
-        self.uniqueCodeC2 = None  
+        self.uniqueCodeC2 = None
 
-        self.chessBoard = None   
+        self.chess = chessLogic.ChessBoard(0)
+
+        self.whoIsWhite = random.randint(1, 2)
+        self.chessBoard = self.chess.currBoard
 
     def isAlreadyInGame(self,uniqueCode,socket): #ce je bil disconectan pa se na novo joina
         #ce je uniqueCode enak uniqueCodeC1 al uniqueCodeC2
@@ -44,4 +50,7 @@ class Game:
     
     def isEmpty(self):
         return self.socketC1 is None and self.socketC2 is None
+    
+    def flipBoard(self):
+        return self.chessBoard[::-1]
 

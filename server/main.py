@@ -158,7 +158,6 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                     if match.gameID == game_code:
                         print(f"Zahteva za legalne poteze v igri {game_code} od igralca {unique_id}")
                         if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
-                            if()
                             legalMoves = match.chess.getLegalMoves(int(row), int(column))
                             send_response(match.socketC1, "#LEGALMOVES", legalMoves)
                             print(f"Legalne poteze poslane igralcu {unique_id}")

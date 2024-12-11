@@ -3,9 +3,11 @@ import uuid
 import game
 import threading
 import socket
+import pickle
+from time import sleep
 
 HOST = '127.0.0.1'
-PORT = 1234  # Vrata strežnika
+PORT = 1235  # Vrata strežnika
 BUFFER_SIZE = 1024
 running = True  # Če je True, potem strežnik posluša, sicer se konča
 s = None
@@ -60,15 +62,23 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
     if protocol == "#CREATE": # Format: #CREATE/|/uniqueID
         game_code = str(uuid.uuid4())[:5]
         with lock:
+            tempBoard = None
             createdMatch = game.Game(game_code, conn, message)  # message contains uniqueID
             games.append(createdMatch)
             send_response(conn, "#GAMEID", game_code)
+            sleep(1)
+            tempBoard = createdMatch.chessBoard
+            if createdMatch.whoIsWhite == 2:
+                tempBoard = createdMatch.flipBoard()
+            send_response(conn, "#BOARD", tempBoard)
             print(f"Ustvarjena igra z id: {game_code}")
             send_response(conn, "#INFO", f"Igra je bila ustvarjena. Koda igre: {game_code}")
             return True
     elif protocol == "#JOIN":  # Format: game_code:uniqueID
         try:
             game_code, unique_id = message.strip().split(":", 1)
+            game_code = game_code.lower()
+            tempBoard = None
             with lock:
                 for match in games:
                     if match.gameID == game_code:
@@ -77,12 +87,22 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             match.reconnectPlayer(conn, unique_id)
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
+                            sleep(1)
+                            tempBoard = match.chessBoard
+                            if match.whoIsWhite == 1:
+                                tempBoard = match.flipBoard()
+                            send_response(conn, "#BOARD", tempBoard)
                             return True
                         # če se drugi pridružit igri
                         elif match.isOneSpaceEmpty():
                             match.addPlayer2(conn, unique_id)
                             print(f"Igralec {unique_id} se je pridružil igri {game_code}")
                             send_response(conn, "#INFO", f"Pridružili ste se igri {game_code}")
+                            sleep(1)
+                            tempBoard = match.chessBoard
+                            if match.whoIsWhite == 1:
+                                tempBoard = match.flipBoard()
+                            send_response(conn, "#BOARD", tempBoard)
                             return True
                         else:
                             send_response(conn, "#ERROR", "Igra je že polna.")
@@ -93,7 +113,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
     return False
     
 def protocol_check_ME(protocol, message, conn): # za sporočila in exit
-    if protocol == "#M":  # Format: game_code:message
+    if protocol == "#BOARD":  # Format: game_code:message
         try:
             game_code, actual_message = message.split(":", 1)
             with lock:
@@ -101,9 +121,9 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                     if match.gameID == game_code:
                         print(f"Sporočilo poslano v igri {game_code}: {actual_message}")
                         if match.socketC1 is not None:
-                            send_response(match.socketC1, "#M", actual_message)
+                            send_response(match.socketC1, "#BOARD", actual_message)
                         if match.socketC2 is not None:
-                            send_response(match.socketC2, "#M", actual_message)
+                            send_response(match.socketC2, "#BOARD", actual_message)
                         return
                 send_response(conn, "#ERROR", "Igre ni mogoče najti.")
         except ValueError:
@@ -129,6 +149,33 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
         except ValueError:
             print("Napaka pri obdelavi EXIT sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
+    elif protocol == "#GETLEGALMOVES": # Format: game_code:uniqueID:row:column
+        try:
+            game_code, unique_id, row, column = message.strip().split(":", 3)
+            print(row, column)
+            with lock:
+                for match in games:
+                    if match.gameID == game_code:
+                        print(f"Zahteva za legalne poteze v igri {game_code} od igralca {unique_id}")
+                        if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
+                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            send_response(match.socketC1, "#LEGALMOVES", legalMoves)
+                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                        elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
+                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            send_response(match.socketC2, "#LEGALMOVES", legalMoves)
+                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                        else:
+                            send_response(conn, "#ERROR", "Igralec ni v igri.")
+                        return
+                send_response(conn, "#ERROR", "Igre ni mogoče najti.")
+        except ValueError:
+            print("Napaka pri obdelavi GETLEGALMOVES sporočila")
+            send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: row:column")
+    elif protocol == "#MOVE":
+        game_code, unique_id, startRow, startCol, endRow, endCol = message.strip().split(":", 5)
+        print("sdadasdasdass")
+
 
 def send_response(conn, protocol, message):
     try:

@@ -8,9 +8,11 @@ gui.loadNextTexture() #loads figure textures (folder for textures, figures scale
 
 uniqueIDRequiered = False
 gameCodeRequiered = False
+
 def createGame():
     global uniqueIDRequiered, gameCodeRequiered
-    playGame.startSocket()
+    playGame.startSocket(playGame.board, playGame.legalMoves)
+    print(playGame.board)
     uId = gui.readTextField(0)
     if uId == "":
         uniqueIDRequiered = True
@@ -19,14 +21,14 @@ def createGame():
     gameCodeRequiered = False
     
     playGame.sendingAndReciving.unique_id = uId
-    playGame.send_message("#CREATE", uId)
+    playGame.send_message("#CREATE", includeGameId=False)
 
     gui.startGame()
     playGame.play(gui)
 
 def joinGame():
     global uniqueIDRequiered, gameCodeRequiered
-    playGame.startSocket()
+    playGame.startSocket(playGame.board, playGame.legalMoves)
 
     uId = gui.readTextField(0)
     if uId == "":
@@ -42,7 +44,7 @@ def joinGame():
     gameCodeRequiered = False
     #print(f"JOIN GAME | UID:{uId} | GAME ID: {gameCode}")
     playGame.sendingAndReciving.current_game_code = gameCode
-    playGame.send_message("#JOIN", f"{gameCode.lower()}:{uId}")
+    playGame.send_message("#JOIN")
     gui.startGame()
     playGame.play(gui)
 gui.addText("Šah",(350,230),150,bold=True,isPermanent=True)

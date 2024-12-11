@@ -4,7 +4,7 @@ import threading
 import ast
 
 SERVER_IP = '127.0.0.1'
-PORT = 1234
+PORT = 1235
 BUFFER_SIZE = 1024
 
 
@@ -12,9 +12,11 @@ current_game_code = None
 unique_id = None
 clientSocket = None
 board = None
+legalMoves = None
 
-def startSocket(board1):
-    global clientSocket, board
+def startSocket(board1, legalMoves1):
+    global clientSocket, board, legalMoves
+    legalMoves = legalMoves1
     board = board1
     
     try:
@@ -25,9 +27,11 @@ def startSocket(board1):
         return False
     threading.Thread(target=listen_to_server, args=(clientSocket,None), daemon=True).start()
     return True
+
 def setGameCode(gameCode):
     global current_game_code
     current_game_code = gameCode
+
 def closeConnection():
     global current_game_code
     print("Zapiram povezavo")
@@ -51,7 +55,7 @@ def listen_to_server(client,tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board
+    global current_game_code, board, legalMoves
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -73,12 +77,25 @@ def handle_server_response(protocol, message):
         print(f"TURN: {message}")
     elif protocol == "#END":
         print(f"END: {message}")
+    elif protocol == "#LEGALMOVES":
+        legalMoves2 = ast.literal_eval(message)
+        for i in range(8):
+            for j in range(8):
+                legalMoves[i][j] = legalMoves2[i][j]
+        print(f"LEGALMOVES: {legalMoves}")
     else:
         print(f"Neznana koda: {protocol} - {message}")
 
-def send_message(protocol, message):
+def send_message(protocol, includeGameId=True, message=None):
     try:
-        encoded_message = protocol_encode(protocol, message)
+        if includeGameId:
+            if message == None:
+                full_message = f"{current_game_code.lower()}:{unique_id}"
+            else:
+                full_message = f"{current_game_code.lower()}:{unique_id}:{message}"
+        else:
+            full_message = f"{unique_id}"
+        encoded_message = protocol_encode(protocol, full_message)
         encrypted_message = encoded_message.encode()
         clientSocket.sendall(encrypted_message)
     except Exception as e:

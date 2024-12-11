@@ -7,7 +7,7 @@ import pickle
 from time import sleep
 
 HOST = '127.0.0.1'
-PORT = 1234  # Vrata strežnika
+PORT = 1235  # Vrata strežnika
 BUFFER_SIZE = 1024
 running = True  # Če je True, potem strežnik posluša, sicer se konča
 s = None
@@ -77,6 +77,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
     elif protocol == "#JOIN":  # Format: game_code:uniqueID
         try:
             game_code, unique_id = message.strip().split(":", 1)
+            game_code = game_code.lower()
             tempBoard = None
             with lock:
                 for match in games:
@@ -148,6 +149,34 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
         except ValueError:
             print("Napaka pri obdelavi EXIT sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
+    elif protocol == "#GETLEGALMOVES": # Format: game_code:uniqueID:row:column
+        try:
+            game_code, unique_id, row, column = message.strip().split(":", 3)
+            print(row, column)
+            with lock:
+                for match in games:
+                    if match.gameID == game_code:
+                        print(f"Zahteva za legalne poteze v igri {game_code} od igralca {unique_id}")
+                        if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
+                            if()
+                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            send_response(match.socketC1, "#LEGALMOVES", legalMoves)
+                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                        elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
+                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            send_response(match.socketC2, "#LEGALMOVES", legalMoves)
+                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                        else:
+                            send_response(conn, "#ERROR", "Igralec ni v igri.")
+                        return
+                send_response(conn, "#ERROR", "Igre ni mogoče najti.")
+        except ValueError:
+            print("Napaka pri obdelavi GETLEGALMOVES sporočila")
+            send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: row:column")
+    elif protocol == "#MOVE":
+        game_code, unique_id, startRow, startCol, endRow, endCol = message.strip().split(":", 5)
+        print("sdadasdasdass")
+
 
 def send_response(conn, protocol, message):
     try:

@@ -64,8 +64,8 @@ while run:
                         legalMoves = chessBoard._getEmptyBoard()
 
                 elif legalMoves[row][column] == 0: #when user click on a non selected square
-
                         legalMoves = chessBoard.getLegalMoves(row, column)
+
                 else: #user already selected a piece, now he wants to move it
 
                         pieceRow=0

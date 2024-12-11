@@ -106,6 +106,7 @@ class ChessBoard:
         legalMoves = self._getEmptyBoard()
         if not self.result is None:
             return legalMoves
+
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves

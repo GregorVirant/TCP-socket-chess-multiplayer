@@ -9,7 +9,8 @@ gui.loadNextTexture() #loads figure textures (folder for textures, figures scale
 uniqueIDRequiered = False
 gameCodeRequiered = False
 def createGame():
-    global uniqueIDRequiered
+    global uniqueIDRequiered, gameCodeRequiered
+    playGame.startSocket()
     uId = gui.readTextField(0)
     if uId == "":
         uniqueIDRequiered = True
@@ -17,24 +18,31 @@ def createGame():
     uniqueIDRequiered = False
     gameCodeRequiered = False
     
-    print(f"CREATE GAME | UID:{uId}")
+    playGame.sendingAndReciving.unique_id = uId
+    playGame.send_message("#CREATE", uId)
+
     gui.startGame()
     playGame.play(gui)
-    #gui.addButton("Back",back,(350,300),(200,100),buttonColor=colors.BLUE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
+
 def joinGame():
     global uniqueIDRequiered, gameCodeRequiered
+    playGame.startSocket()
+
     uId = gui.readTextField(0)
     if uId == "":
         uniqueIDRequiered = True
         return
     uniqueIDRequiered = False
+    playGame.sendingAndReciving.unique_id = uId
     gameCode = gui.readTextField(1)
     if gameCode == "":
         gameCodeRequiered = True
         return
     
     gameCodeRequiered = False
-    print(f"JOIN GAME | UID:{uId} | GAME ID: {gameCode}")
+    #print(f"JOIN GAME | UID:{uId} | GAME ID: {gameCode}")
+    playGame.sendingAndReciving.current_game_code = gameCode
+    playGame.send_message("#JOIN", f"{gameCode.lower()}:{uId}")
     gui.startGame()
     playGame.play(gui)
 gui.addText("Šah",(350,230),150,bold=True,isPermanent=True)
@@ -43,7 +51,7 @@ gui.addText("Unique ID",(385,570),40,bold=True,isPermanent=True)
 gui.addTextField(5,410,610,bold=True,onlyNumbers=True)
 
 gui.addText("Game Code",(370,650),40,bold=True,isPermanent=True)
-gui.addTextField(5,410,690,bold=True,onlyNumbers=True)
+gui.addTextField(5,410,690,bold=True)
 
 gui.addButton("Create",createGame,(350,390),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Join",joinGame,(350,480),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")

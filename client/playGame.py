@@ -1,5 +1,6 @@
 from gui import *
-
+import sendingAndReciving
+from sendingAndReciving import closeConnection,startSocket,setGameCode, send_message
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
         [-1,-1,-1,-1,-1,-1,-1,-1],
@@ -32,9 +33,10 @@ gui.addButton("Back",back,(630,860),(220,30),buttonColor=colors.LIGHT_PURPLE,hov
 gui.addButton("Change texture",gui.loadNextTexture,(630,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.state = MENU
 
-
 def play(gui):
     global run
+    #send_message("#M", client, f"{current_game_code}:{message}")
+    #position=game.mouseGetBoardPosition()
     gui.state = GAME
     gui.startGame()
     
@@ -53,6 +55,9 @@ def play(gui):
         gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.draw(board,legalMoves)
     
+
+
     gui.startMenu()
     gui.state = MENU
     run = True
+    closeConnection()

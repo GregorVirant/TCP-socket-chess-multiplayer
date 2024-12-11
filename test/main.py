@@ -43,6 +43,7 @@ game.addButton("Create",create,(150,861),(70,28),buttonColor=colors.LIGHT_PURPLE
 game.addButton("Join",join,(230,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")      
 
 chessBoard = ChessBoard(BoardType.STANDARD)
+
 while run:
         #can add fps limit
         game.loadEvents()

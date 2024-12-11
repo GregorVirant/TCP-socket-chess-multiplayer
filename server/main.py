@@ -58,7 +58,7 @@ def handle_client(conn):
 
 def protocol_check_CJ(protocol, message, conn):  # za create in join
     if protocol == "#CREATE": # Format: #CREATE/|/uniqueID
-        game_code = str(uuid.uuid4())
+        game_code = str(uuid.uuid4())[:5]
         with lock:
             createdMatch = game.Game(game_code, conn, message)  # message contains uniqueID
             games.append(createdMatch)

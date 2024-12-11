@@ -93,13 +93,13 @@ class ChessBoard:
                     if not self._isMoveLegalNoCheckAfterMove(row,column, rowT, columnT):
                         legalMoves[rowT][columnT] = 0
 
-    def getLegalMoves(self, row, column, checkForCheck = True):
+    def getLegalMoves(self, row, column, checkForCheck = True, checkIfCastlingLegal = True):
         legalMoves = self._getEmptyBoard()
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves
 
-        self._calculateLegalMoves(row, column, legalMoves)
+        self._calculateLegalMoves(row, column, legalMoves,checkIfCastlingLegal)
 
         if checkForCheck:
             self._areMovesLegalNoCheckAfterMove(legalMoves)
@@ -231,7 +231,7 @@ class ChessBoard:
                 piece = self.currBoard[i][j]
                 if (self.isWhiteToMove and piece > 0) or (not self.isWhiteToMove and piece < 0):
                     legalMoves = self._getEmptyBoard()
-                    legalMoves = self.getLegalMoves(i, j, checkForCheck=False)
+                    legalMoves = self.getLegalMoves(i, j, checkForCheck=False, checkIfCastlingLegal=False)
                     if legalMoves[row][column] != 0:
                         self.isWhiteToMove = originalTurn  # Povrnemo originalno vrednost
                         return True
@@ -317,7 +317,7 @@ class ChessBoard:
                     break
                 else:
                     break
-    def _legalMovesKing(self, row, column, legalMoves):
+    def _legalMovesKing(self, row, column, legalMoves, checkIfCastlingLegal = True):
         if self.currBoard[row][column] > 0:
             color = True
         else:
@@ -331,21 +331,21 @@ class ChessBoard:
                 legalMoves[row + moveRow][column + moveColumn] = 2
             elif self._isLegalTake(row + moveRow, column + moveColumn):
                 legalMoves[row + moveRow][column + moveColumn] = 3
-
+        if checkIfCastlingLegal:
         # Preveri rokado na kraljevi strani
-        if color and self.currBoard[row][column] == 6:  # Beli kralj
-            if self.castlingOptions[0] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
-                legalMoves[row][column + 2] = 2
-            if self.castlingOptions[1] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
-                legalMoves[row][column - 2] = 2
-        elif not color and self.currBoard[row][column] == -6:  # Črni kralj
-            if self.castlingOptions[2] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
-                legalMoves[row][column + 2] = 2
-            if self.castlingOptions[3] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
-                legalMoves[row][column - 2] = 2
+            if color and self.currBoard[row][column] == 6:  # Beli kralj
+                if self.castlingOptions[0] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                    legalMoves[row][column + 2] = 2
+                if self.castlingOptions[1] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                    legalMoves[row][column - 2] = 2
+            elif not color and self.currBoard[row][column] == -6:  # Črni kralj
+                if self.castlingOptions[2] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                    legalMoves[row][column + 2] = 2
+                if self.castlingOptions[3] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                    legalMoves[row][column - 2] = 2
 
 
-    def _calculateLegalMoves(self, row,column,legalMoves):
+    def _calculateLegalMoves(self, row,column,legalMoves,checkIfCastlingLegal = True):
         if(self.isWhiteToMove and self.currBoard[row][column] > 0 or (not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             
             legalMoves[row][column] = 1
@@ -376,7 +376,7 @@ class ChessBoard:
                 return
 
             if piece == 6: # kralj
-                self._legalMovesKing(row,column,legalMoves)
+                self._legalMovesKing(row,column,legalMoves, checkIfCastlingLegal)
                 return
 #end of class
 

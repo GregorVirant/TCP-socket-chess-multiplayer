@@ -33,6 +33,9 @@ class ChessBoard:
     def _setCastlingOptions(self, options):
         self.castlingOptions = options
 
+    def _setHalfMoves(self, halfMoves):
+        self.halfMoves = halfMoves
+
     def getBoard(self):
         return self.currBoard
     
@@ -106,6 +109,7 @@ class ChessBoard:
         legalMoves = self._getEmptyBoard()
         if not self.result is None:
             return legalMoves
+
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves
@@ -118,18 +122,20 @@ class ChessBoard:
         return legalMoves
 
     def makeMove(self, originSquare, newSquare):
-        self.makeMove1(originSquare, newSquare)
+        if not self.makeMove1(originSquare, newSquare):
+            return False
         if self._isMate():
-            print("White has won" if self.isWhiteToMove else "Black has won")
-        elif self._isStalemate():
+            print("White has won" if not self.isWhiteToMove else "Black has won")
+            return True
+        elif self._isDraw():
             self.result = 0
-            print("Draw due to stalemate!")
+            return True
 
 
 
     def makeMove1(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
         if not self.result is None:
-            return legalMoves
+            return False
         legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
         if(legalMoves[newSquare[0]][newSquare[1]] < 2):
             return False
@@ -189,16 +195,16 @@ class ChessBoard:
         else:
             self.enPassantSquare=[]
         # polpoteze od zadnjega premika kmeta ali ujetja
-        if(legalMoves == 2):
-            if(self.isWhiteToMove):
-                self.halfMoves[0] += 1
+        if piece != 1 and legalMoves[newSquare[0]][newSquare[1]] != 0:
+            if not self.isWhiteToMove:
+                self.halfMoves = (self.halfMoves[0] + 1, self.halfMoves[1])
             else:
-                self.halfMoves[1] += 1
+                self.halfMoves = (self.halfMoves[0], self.halfMoves[1]+1)
         else:
             self.halfMoves = (0,0)
         self.moves.append([(originSquare),(newSquare)])
         return True
-        #castling TODO
+
 
     def _setBoard(self, bType): #_ pomeni da je metoda privatna
         match(bType):
@@ -429,15 +435,27 @@ class ChessBoard:
         legalMoves = self._getEmptyBoard()
         for i in range(len(self.currBoard)):
             for j in range(len(self.currBoard[i])):
-                if factor * self.currBoard[i][j] > 0:
-                    self.getLegalMoves(i, j, legalMoves)
+                if factor * self.currBoard[j][i] > 0:
+                    #print(f"preverjanje [{i}][{j}] - {self.getLegalMoves(i, j, legalMoves)}")
+                    legalMoves = self.getLegalMoves(j, i, legalMoves)
                     if not self.legalMovesEmpty(legalMoves):
+
+                        
                         return False
         
         self.result = factor
         
         return True
-    
+    def _isDraw(self):
+        if(self._isStalemate50MoveRule()):
+            print("Draw due to 50 move rule")
+            return True
+        elif(self._isStalemate()):
+            print("Draw due to stalemate")
+            return True
+        
+        return False
+
     def _isStalemate(self):
         if(self.isCheck(self.isWhiteToMove)):
             return False
@@ -448,6 +466,13 @@ class ChessBoard:
                         return False
         self.result = 0
         return True
+    
+    def _isStalemate50MoveRule(self):
+        if self.halfMoves[0] >= 50 or self.halfMoves[1] >= 50:
+            self.result = 0
+            return True
+        else:
+            return False
 
     def legalMovesEmpty(self, legalMoves):
         for row in legalMoves:
@@ -469,6 +494,8 @@ class ChessBoard:
             for j in range(len(matrix)):
                 print(f"{matrix[i][j]}", end=" ")
             print("\n", end="")
+    
+    
 
 
 #end of class

@@ -235,6 +235,33 @@ class ChessBoard:
                         [0,0,0,0,0,0,0,0],
                         [0,0,0,0,0,0,0,0],
                         [0,0,0,0,0,0,0,6]]
+            case 3:
+                return [[-6,0,0,0,0,0,-3,-3],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [3,3,0,0,0,0,0,6]]
+            case 4:
+                return [[-6,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,4,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,6]]
+            case 5:
+                return [[-6,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [3,3,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [-4,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,6]]
 
             case _:#default
                 return [[-2,-3,-4,-5,-6,-4,-3,-2],
@@ -453,6 +480,8 @@ class ChessBoard:
         elif(self._isStalemate()):
             print("Draw due to stalemate")
             return True
+        elif self._isDrawDueToInsuficientMaterial():
+            print("Draw due to insuficient material")
         
         return False
 
@@ -473,6 +502,43 @@ class ChessBoard:
             return True
         else:
             return False
+    def _isDrawDueToInsuficientMaterial(self):
+        #TODO
+        piecePositions = self.getAllPieces()
+        #izhod če najdemo kmeta, trdnjavo ali kraljico na polju
+        if piecePositions[1] > 0 or piecePositions[-1] > 0 or piecePositions[2] > 0 or piecePositions[-2] > 0 or piecePositions[5] > 0 or piecePositions[-5] > 0:
+            return False
+        #ima le še oba konje
+        elif piecePositions[3] == 2 and piecePositions[4] == 0 and piecePositions[-3] == 2 and piecePositions[-4] == 0:
+            self.result = 0
+            return True
+        #eden ima še 2 konja, drugi pa manj
+        elif piecePositions[3] == 2 and piecePositions[4] == 0 and (piecePositions[-3] + piecePositions[-4] < 2):
+            self.result = 0
+            return True
+        elif piecePositions[-3] == 2 and piecePositions[-4] == 0 and (piecePositions[3] + piecePositions[4] < 2):
+            self.result = 0
+            return True
+        elif (piecePositions[4] + piecePositions[3]) < 2 and (piecePositions[-4] + piecePositions[-3]) < 2:
+            self.result = 0
+            return True
+        return False
+
+    
+    def getAllPieces(self):
+        #TODO
+        piecePositions = {}
+        for i in range(-6,7):
+            piecePositions[i] = 0
+        for i in range(len(self.currBoard)):
+            for j in range(len(self.currBoard[i])):
+                if self.currBoard[i][j] != 0:
+                    if not self.currBoard[i][j] in piecePositions:
+                        piecePositions[self.currBoard[i][j]] = 1
+                    else:
+                        piecePositions[self.currBoard[i][j]] = piecePositions[self.currBoard[i][j]] + 1
+        return piecePositions
+        
 
     def legalMovesEmpty(self, legalMoves):
         for row in legalMoves:
@@ -495,7 +561,10 @@ class ChessBoard:
                 print(f"{matrix[i][j]}", end=" ")
             print("\n", end="")
     
-    
+    def reverseMatrix(self, matrix):
+        matrix.reverse()
+        for i in range(len(matrix)):
+            matrix[i].reverse()
 
 
 #end of class

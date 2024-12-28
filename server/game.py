@@ -1,6 +1,6 @@
 import chessLogic
 import random
-
+import time
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
     def __init__(self, gameID,socketC1,uniqueCodeC1):
@@ -16,21 +16,39 @@ class Game:
         self.chessBoard = self.chess.currBoard
         self.isWhiteTurn = True
 
+        self.turnNumber = 0
+
+        self.timeWhite = 600  # 10 minutes in seconds
+        self.timeBlack = 600  # 10 minutes in seconds
+        self.lastMoveTime = time.time()
+
     def isPlayerTurn(self, uniqueId):
         if self.whoIsWhite == 1:
             return (uniqueId == self.uniqueCodeC1 and self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and not self.isWhiteTurn)
         else:
             return (uniqueId == self.uniqueCodeC1 and not self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and self.isWhiteTurn)
     
-    def updateBoard(self):
+    def _updateBoard(self):
         self.chessBoard = self.chess.currBoard
-    def makeMove(self, odlSquare, newSquare):
+
+    def _updateTime(self):
+        if self.turnNumber == 0:
+            self.lastMoveTime = time.time()
+            return  # Don't update time on the first move
+        currentTime = time.time()
+        timeElapsed = currentTime - self.lastMoveTime
+        self.lastMoveTime = currentTime
         if self.isWhiteTurn:
-            self.chess.makeMove(odlSquare, newSquare)
+            self.timeWhite -= timeElapsed
         else:
-            self.chess.makeMove(odlSquare, newSquare)
-        self.updateBoard()
+            self.timeBlack -= timeElapsed
+
+    def makeMove(self, odlSquare, newSquare):
+        self.chess.makeMove(odlSquare, newSquare)
+        self._updateBoard()
+        self._updateTime()
         self.isWhiteTurn = not self.isWhiteTurn
+        self.turnNumber += 1
         
     def isAlreadyInGame(self,uniqueCode,socket): #ce je bil disconectan pa se na novo joina
         #ce je uniqueCode enak uniqueCodeC1 al uniqueCodeC2

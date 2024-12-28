@@ -13,8 +13,9 @@ unique_id = None
 clientSocket = None
 board = None
 legalMoves = None
-isWhiteTurn = None
+isWhiteTurn = True
 amIWhite = None
+Time = "10:0:0 - 10:0:0"
 
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
@@ -51,14 +52,17 @@ def listen_to_server(client,tmp):
             if not encrypted_data:
                 break
             decrypted_data = encrypted_data.decode()
-            protocol, message = protocol_decode(decrypted_data)
-            handle_server_response(protocol, message)
+            print (f"PrPPPejeto: {decrypted_data}")
+            messages = splitIfPossible(decrypted_data)
+            for mes in messages:
+                protocol, message = protocol_decode(mes)
+                handle_server_response(protocol, message)
         except Exception as e:
             print(f"Napaka pri prejemanju podatkov: {e}")
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves
+    global current_game_code, board, legalMoves, isWhiteTurn, Time
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -77,7 +81,10 @@ def handle_server_response(protocol, message):
                 board[i][j] = board2[i][j]
         print(f"BOARD: {board}")
     elif protocol == "#TURN":
-        print(f"TURN: {message}")
+        if message == "True":
+            isWhiteTurn = True
+        else:
+            isWhiteTurn = False
     elif protocol == "#END":
         print(f"END: {message}")
     elif protocol == "#LEGALMOVES":
@@ -86,9 +93,20 @@ def handle_server_response(protocol, message):
             for j in range(8):
                 legalMoves[i][j] = legalMoves2[i][j]
         print(f"LEGALMOVES: {legalMoves}")
+    elif protocol == "#TIME":
+        myTime, enemyTime = message.split(":")
+        Time = f"{toMinutesAndSeconds(myTime)} - {toMinutesAndSeconds(enemyTime)}"
+        print(Time)
     else:
         print(f"Neznana koda: {protocol} - {message}")
 
+def toMinutesAndSeconds(time):
+    time = float(time)
+    minutes = int(time // 60)
+    seconds = int(time % 60)
+    tenths = int((time - int(time)) * 10)
+    rez = f"{minutes}:{seconds}:{tenths}"
+    return rez
 def send_message(protocol, includeGameId=True, message=None):
     try:
         if includeGameId:
@@ -103,7 +121,14 @@ def send_message(protocol, includeGameId=True, message=None):
         clientSocket.sendall(encrypted_message)
     except Exception as e:
         print(f"Napaka pri pošiljanju: {e}")
-
+def splitIfPossible(message):
+    try:
+        message = message.split("#/|/#")
+        if message[-1] == "":
+            message.pop()
+        return message
+    except:
+        return message
 def protocol_encode(protocol, message):
     return f"{protocol}/|/{message}"
 

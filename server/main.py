@@ -207,6 +207,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                         legalMoves = match.chess.getLegalMoves(int(startRow), int(startCol))
                         if legalMoves[int(endRow)][int(endCol)] in (2, 3):
                             match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
+                            
                             print("BOARD:" + str(match.chessBoard))
                             print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
                             board1 = match.chessBoard
@@ -216,18 +217,25 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             else:
                                 board1 = match.flipBoard()
                             if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
+                                send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC1, "#BOARD", board1)
                                 send_response(match.socketC1, "#INFO", "Poteza uspešno narejena.")
                                 if match.socketC2 is not None:
+                                    send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC2, "#BOARD", board2)
                                     send_response(match.socketC2, "#INFO", "Nasprotnik je naredil potezo.")
                             elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
+                                send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC2, "#BOARD", board2)
                                 send_response(match.socketC2, "#INFO", "Poteza uspešno narejena.")
                                 if match.socketC1 is not None:
+                                    send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
                             print(f"Legalne poteze poslane igralcu {unique_id}")
+                            sleep(0.02)
+                            send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
+                            send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                         else:
                             send_response(conn, "#ERROR", "Neveljavna poteza.")
                     else:
@@ -238,7 +246,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
 
 def send_response(conn, protocol, message):
     try:
-        message = protocol_encode(protocol, message)
+        message = protocol_encode(protocol, message) + "#/|/#"
         conn.sendall(message.encode('utf-8'))
     except Exception as e:
         print("Napaka pri pošiljanju podatkov:", e)

@@ -68,8 +68,9 @@ def play(gui):
             else:
                 selectedPosition = None
 
-            #game.addText("Beli na potezi." if chessBoard.isWhiteToMove else "Črni na potezi",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
-        gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText(sendingAndReciving.Time,(50,855),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.draw(board,legalMoves)
     
 

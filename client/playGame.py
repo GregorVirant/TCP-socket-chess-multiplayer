@@ -37,6 +37,8 @@ def play(gui):
     global run
     #send_message("#M", client, f"{current_game_code}:{message}")
     #position=game.mouseGetBoardPosition()
+    selectedPosition = None
+    
     gui.state = GAME
     gui.startGame()
     
@@ -49,9 +51,22 @@ def play(gui):
             run = False
         gui.mouseClickedUpdate()     
         clicked = gui.buttonAndTextFieldCalculations()  
-        if not clicked and gui.mouseClickedOnBoard(): 
+        if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()
-            send_message("#GETLEGALMOVES", message=f"{row}:{column}")
+            
+            if selectedPosition is None and board[row][column] != 0 or (legalMoves[row][column] != 2 and legalMoves[row][column] != 3):
+                selectedPosition = (row, column)
+                send_message("#GETLEGALMOVES", message=f"{selectedPosition[0]}:{selectedPosition[1]}")
+            elif selectedPosition is not None and (legalMoves[row][column] == 2 or legalMoves[row][column] == 3):
+                if selectedPosition != (row, column):
+                    print("Sending move")
+                    send_message("#MOVE", message=f"{selectedPosition[0]}:{selectedPosition[1]}:{row}:{column}")
+                    selectedPosition = None
+                    for i in range(8):
+                        for j in range(8):
+                            legalMoves[i][j] = 0
+            else:
+                selectedPosition = None
 
             #game.addText("Beli na potezi." if chessBoard.isWhiteToMove else "Črni na potezi",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)

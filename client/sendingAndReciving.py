@@ -13,11 +13,14 @@ unique_id = None
 clientSocket = None
 board = None
 legalMoves = None
+isWhiteTurn = None
+amIWhite = None
 
 def startSocket(board1, legalMoves1):
-    global clientSocket, board, legalMoves
+    global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
     legalMoves = legalMoves1
     board = board1
+
     
     try:
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

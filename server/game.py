@@ -14,7 +14,24 @@ class Game:
 
         self.whoIsWhite = random.randint(1, 2)
         self.chessBoard = self.chess.currBoard
+        self.isWhiteTurn = True
 
+    def isPlayerTurn(self, uniqueId):
+        if self.whoIsWhite == 1:
+            return (uniqueId == self.uniqueCodeC1 and self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and not self.isWhiteTurn)
+        else:
+            return (uniqueId == self.uniqueCodeC1 and not self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and self.isWhiteTurn)
+    
+    def updateBoard(self):
+        self.chessBoard = self.chess.currBoard
+    def makeMove(self, odlSquare, newSquare):
+        if self.isWhiteTurn:
+            self.chess.makeMove(odlSquare, newSquare)
+        else:
+            self.chess.makeMove(odlSquare, newSquare)
+        self.updateBoard()
+        self.isWhiteTurn = not self.isWhiteTurn
+        
     def isAlreadyInGame(self,uniqueCode,socket): #ce je bil disconectan pa se na novo joina
         #ce je uniqueCode enak uniqueCodeC1 al uniqueCodeC2
             #self.socketC1/C2 = socket
@@ -52,5 +69,15 @@ class Game:
         return self.socketC1 is None and self.socketC2 is None
     
     def flipBoard(self):
-        return self.chessBoard[::-1]
+        return [row[::-1] for row in self.chessBoard[::-1]]
+    
+    def flipLegalMoves(self,legalMoves):
+        return [row[::-1] for row in legalMoves[::-1]]
+    
+    def getPlayerNumber(self, unique_id):
+        if self.uniqueCodeC1 == unique_id:
+            return 1
+        elif self.uniqueCodeC2 == unique_id:
+            return 2
+        return None
 

@@ -113,6 +113,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
     return False
     
 def protocol_check_ME(protocol, message, conn): # za sporočila in exit
+    global games
     if protocol == "#BOARD":  # Format: game_code:message
         try:
             game_code, actual_message = message.split(":", 1)
@@ -165,7 +166,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             if match.whoIsWhite != 1:
                                 row = 7 - int(row)
                                 column = 7 - int(column)
-                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            legalMoves = match.getLegalMoves(int(row), int(column))
                             legalMoves1 = legalMoves
                             if match.whoIsWhite != 1:
                                 legalMoves1 = match.flipLegalMoves(legalMoves)
@@ -175,7 +176,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             if match.whoIsWhite != 2:
                                 row = 7 - int(row)
                                 column = 7 - int(column)
-                            legalMoves = match.chess.getLegalMoves(int(row), int(column))
+                            legalMoves = match.getLegalMoves(int(row), int(column))
                             legalMoves1 = legalMoves
                             if match.whoIsWhite != 2:
                                 legalMoves1 = match.flipLegalMoves(legalMoves)
@@ -203,11 +204,22 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             startCol = 7 - int(startCol)
                             endRow = 7 - int(endRow)
                             endCol = 7 - int(endCol)
+                        #print("BOARD:" + str(match.chessBoard))
                         print(startRow, startCol, endRow, endCol)
                         legalMoves = match.chess.getLegalMoves(int(startRow), int(startCol))
                         if legalMoves[int(endRow)][int(endCol)] in (2, 3):
-                            match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
-                            
+                            notation = match.generateMoveNotation(int(startRow), int(startCol), int(endRow), int(endCol))
+                            moveMade = match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
+                            if not moveMade:
+                                send_response(conn, "#ERROR", "Neveljavna poteza.")
+                                return
+                            if match.chess.isCheck(match.chess.isWhiteToMove):
+                                notation += "+"
+                            #elif match.chess.isCheckMate():
+                            #    notation += "#"
+                            match.moves.append(notation)
+                            match.saveToFile()
+                            print(notation)
                             print("BOARD:" + str(match.chessBoard))
                             print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
                             board1 = match.chessBoard
@@ -233,7 +245,6 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
                             print(f"Legalne poteze poslane igralcu {unique_id}")
-                            sleep(0.02)
                             send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                         else:

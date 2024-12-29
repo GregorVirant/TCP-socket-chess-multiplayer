@@ -52,7 +52,6 @@ def listen_to_server(client,tmp):
             if not encrypted_data:
                 break
             decrypted_data = encrypted_data.decode()
-            print (f"PrPPPejeto: {decrypted_data}")
             messages = splitIfPossible(decrypted_data)
             for mes in messages:
                 protocol, message = protocol_decode(mes)

@@ -1,6 +1,8 @@
 import chessLogic
 import random
 import time
+import copy
+
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
     def __init__(self, gameID,socketC1,uniqueCodeC1):
@@ -16,11 +18,15 @@ class Game:
         self.chessBoard = self.chess.currBoard
         self.isWhiteTurn = True
 
+        self.moves = []
+        
         self.turnNumber = 0
 
         self.timeWhite = 600  # 10 minutes in seconds
         self.timeBlack = 600  # 10 minutes in seconds
         self.lastMoveTime = time.time()
+        
+        self.fileName = f"game{self.gameID}.txt"
 
     def isPlayerTurn(self, uniqueId):
         if self.whoIsWhite == 1:
@@ -44,11 +50,14 @@ class Game:
             self.timeBlack -= timeElapsed
 
     def makeMove(self, odlSquare, newSquare):
-        self.chess.makeMove(odlSquare, newSquare)
+        moveMade = self.chess.makeMove(odlSquare, newSquare)
+        if not moveMade:
+            return False
         self._updateBoard()
         self._updateTime()
         self.isWhiteTurn = not self.isWhiteTurn
         self.turnNumber += 1
+        return True
         
     def isAlreadyInGame(self,uniqueCode,socket): #ce je bil disconectan pa se na novo joina
         #ce je uniqueCode enak uniqueCodeC1 al uniqueCodeC2
@@ -98,4 +107,98 @@ class Game:
         elif self.uniqueCodeC2 == unique_id:
             return 2
         return None
+
+    def _coordsToAlgebraic(self, row, col):
+        files = 'abcdefgh'
+        ranks = '87654321'
+        return f"{files[col]}{ranks[row]}"
+    
+    def getLegalMoves(self, row, col):
+        return self.chess.getLegalMoves(row, col)
+    
+    def isAmbiguousMove(self, oldRow, oldCol, newRow, newCol):
+        try:
+            piece = self.chess.currBoard[oldRow][oldCol]
+            if abs(piece) in (1, 4, 6):
+                return False
+            #poisce vse figure istega tipa
+            pieces = []
+            for i in range(8):
+                for j in range(8):
+                    if self.chess.currBoard[i][j] == piece:
+                        pieces.append((i, j))
+            #ce je samo ena figura tega tipa
+            if len(pieces) == 1:
+                return False
+            #ce je vec figur istega tipa in pogleda če se lahko druga figura prestavi na isto mesto
+            needRow = ""
+            needCol = ""
+            for p in pieces:
+                if p == (oldRow, oldCol):
+                    continue
+                legalMoves = self.chess.getLegalMoves(p[0], p[1])
+                if legalMoves[newRow][newCol] != 0:
+                    if p[0] == oldRow:
+                        needCol = self._coordsToAlgebraic(oldRow, oldCol)[0]
+                    if p[1] == oldCol:
+                        needRow = self._coordsToAlgebraic(oldRow, oldCol)[1]
+            print (f"Potrebujemo {needRow} {needCol}")
+            return needRow + needCol
+        except Exception as e:
+            print(f"Napaka pri preverjanju dvoumnega poteza {e}")
+            return None
+    def addMoveNumber(self, move):
+        return f"{self.turnNumber}. {move}"
+
+    def generateMoveNotation(self, oldRow, oldCol, newRow, newCol):
+        try:
+            move = ""
+            pieceNotation = {2: 'R', 3: 'N', 4: 'B', 5: 'Q', 6: 'K'}
+            piece = self.chess.currBoard[oldRow][oldCol]
+            capture = True
+            if self.chess.currBoard[newRow][newCol] == 0:
+                capture = False
+
+            if abs(piece) == 6:
+                if newRow == oldRow and newCol == oldCol + 2:
+                    return self.addMoveNumber("O-O")
+                elif newRow == oldRow and newCol == oldCol - 2:
+                    return self.addMoveNumber("O-O-O")
+            
+            if abs(piece) == 1:
+                if capture:
+                    move += self._coordsToAlgebraic(oldRow, oldCol)[0] + 'x'
+                move += self._coordsToAlgebraic(newRow, newCol)
+            else:
+                move += pieceNotation[abs(piece)]
+                dodatek = self.isAmbiguousMove(oldRow, oldCol, newRow, newCol)
+                if dodatek != None and dodatek != False:
+                    move += dodatek
+                
+                if capture:
+                    move += 'x'
+                move += self._coordsToAlgebraic(newRow, newCol)
+        
+
+            return self.addMoveNumber(move)
+        except Exception as e:
+            print(f"Napaka pri generiranju notacije poteze: {e}")
+            return None
+    
+    def saveToFile(self):
+        try:
+            with open(self.fileName, 'w') as file:
+                file.write(f"Game ID: {self.gameID}\n")
+                file.write(f"Player 1: {self.uniqueCodeC1}\n")
+                file.write(f"Player 2: {self.uniqueCodeC2}\n")
+                file.write(f"Time white: {self.timeWhite}\n")
+                file.write(f"Time black: {self.timeBlack}\n")
+                file.write(f"Moves:\n")
+                for move in self.moves:
+                    file.write(f"{move}\n")
+        except Exception as e:
+            print(f"Napaka pri shranjevanju igre v datoteko: {e}")
+
+
+        
 

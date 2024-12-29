@@ -22,6 +22,7 @@ class ChessBoard:
         self.castlingOptions = [True, True, True, True] #KQkq
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
+        
 
 
     def getBoard(self):
@@ -177,7 +178,6 @@ class ChessBoard:
             self.halfMoves = (0,0)
         self.moves.append([(originSquare),(newSquare)])
         return True
-        #castling TODO
 
     def _setBoard(self, bType): #_ pomeni da je metoda privatna
         match(bType):

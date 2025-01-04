@@ -2,6 +2,7 @@ import copy
 import socket
 import threading
 import ast
+import time
 
 SERVER_IP = '127.0.0.1'
 PORT = 1235
@@ -16,6 +17,7 @@ legalMoves = None
 isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
+timer_started = False
 
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
@@ -61,7 +63,7 @@ def listen_to_server(client,tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timer_started, amIWhite
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -84,8 +86,14 @@ def handle_server_response(protocol, message):
             isWhiteTurn = True
         else:
             isWhiteTurn = False
+    elif protocol == "#AMWHITE":
+        if message == "True":
+            amIWhite = True
+        else:
+            amIWhite = False
     elif protocol == "#END":
         print(f"END: {message}")
+
     elif protocol == "#LEGALMOVES":
         legalMoves2 = ast.literal_eval(message)
         for i in range(8):
@@ -93,9 +101,15 @@ def handle_server_response(protocol, message):
                 legalMoves[i][j] = legalMoves2[i][j]
         print(f"LEGALMOVES: {legalMoves}")
     elif protocol == "#TIME":
-        myTime, enemyTime = message.split(":")
+        if amIWhite:
+            myTime, enemyTime = message.split(":")
+        else:
+            enemyTime, myTime = message.split(":")
         Time = f"{toMinutesAndSeconds(myTime)} - {toMinutesAndSeconds(enemyTime)}"
         print(Time)
+        if not timer_started:
+            threading.Thread(target=start_timer, daemon=True).start()
+            timer_started = True
     else:
         print(f"Neznana koda: {protocol} - {message}")
 
@@ -138,3 +152,25 @@ def protocol_decode(message):
     except Exception as e:
         print("Napaka pri dekodiranju sporočila:", e)
         return None, None
+    
+def start_timer():
+    global Time, isWhiteTurn, amIWhite
+    while True:
+        time.sleep(1)
+        myTime, enemyTime = Time.split(" - ")
+        if (isWhiteTurn and amIWhite) or (not isWhiteTurn and not amIWhite):
+            myTime = decrement_time(myTime)
+        else:
+            enemyTime = decrement_time(enemyTime)
+        Time = f"{myTime} - {enemyTime}"
+
+def decrement_time(timeStr):
+    minutes, seconds, tenths = map(int, timeStr.split(":"))
+    totalSeconds = minutes * 60 + seconds + tenths / 10.0
+    totalSeconds -= 1
+    if totalSeconds < 0:
+        totalSeconds = 0
+    minutes = int(totalSeconds // 60)
+    seconds = int(totalSeconds % 60)
+    tenths = int((totalSeconds - int(totalSeconds)) * 10)
+    return f"{minutes}:{seconds}:{tenths}"

@@ -73,6 +73,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             send_response(conn, "#BOARD", tempBoard)
             print(f"Ustvarjena igra z id: {game_code}")
             send_response(conn, "#INFO", f"Igra je bila ustvarjena. Koda igre: {game_code}")
+            send_response(conn, "#AMWHITE", "True")
             return True
     elif protocol == "#JOIN":  # Format: game_code:uniqueID
         try:
@@ -88,10 +89,12 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
                             sleep(1)
+                            
                             tempBoard = match.chessBoard
                             if match.whoIsWhite == 1:
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
+                            send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == 1 else "False")
                             return True
                         # če se drugi pridružit igri
                         elif match.isOneSpaceEmpty():
@@ -103,6 +106,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             if match.whoIsWhite == 1:
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
+                            send_response(conn, "#AMWHITE", "False")
                             return True
                         else:
                             send_response(conn, "#ERROR", "Igra je že polna.")
@@ -215,7 +219,8 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                                 return
                             if match.chess.isCheck(match.chess.isWhiteToMove):
                                 notation += "+"
-                            #elif match.chess.isCheckMate():
+                            #preveri ce je koncana
+                            
                             #    notation += "#"
                             match.moves.append(notation)
                             match.saveToFile()

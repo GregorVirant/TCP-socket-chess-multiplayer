@@ -199,6 +199,21 @@ class Game:
         except Exception as e:
             print(f"Napaka pri shranjevanju igre v datoteko: {e}")
 
+    def surrender(self, unique_id):
+        if self.uniqueCodeC1 == unique_id:
+            return self.uniqueCodeC2
+        return self.uniqueCodeC1
+    
+    def resetGame(self):
+        self.chess = chessLogic.ChessBoard(0)
 
+        self.whoIsWhite = random.randint(1, 2)
+        self.chessBoard = self.chess.currBoard
+        self.isWhiteTurn = True
+        self.moves = []
+        self.turnNumber = 0
+        self.timeWhite = 600  # 10 minutes in seconds
+        self.timeBlack = 600  # 10 minutes in seconds
+        self.lastMoveTime = time.time()
         
 

@@ -28,8 +28,13 @@ def back():
     global run
     run = False
 
+def surre():
+    send_message("#SURRENDER")
+
+
 gui.state = GAME
 gui.addButton("Back",back,(630,860),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Surrender",surre,(400,860),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Change texture",gui.loadNextTexture,(630,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.state = MENU
 

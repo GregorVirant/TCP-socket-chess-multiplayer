@@ -73,7 +73,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             send_response(conn, "#BOARD", tempBoard)
             print(f"Ustvarjena igra z id: {game_code}")
             send_response(conn, "#INFO", f"Igra je bila ustvarjena. Koda igre: {game_code}")
-            send_response(conn, "#AMWHITE", "True")
+            send_response(conn, "#AMWHITE", "True" if createdMatch.whoIsWhite == 1 else "False")
             return True
     elif protocol == "#JOIN":  # Format: game_code:uniqueID
         try:
@@ -94,7 +94,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             if match.whoIsWhite == 1:
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
-                            send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == 1 else "False")
+                            send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == match.getPlayerNumber(unique_id) else "False")
                             return True
                         # če se drugi pridružit igri
                         elif match.isOneSpaceEmpty():
@@ -106,7 +106,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             if match.whoIsWhite == 1:
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
-                            send_response(conn, "#AMWHITE", "False")
+                            send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
                             return True
                         else:
                             send_response(conn, "#ERROR", "Igra je že polna.")
@@ -118,7 +118,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
     
 def protocol_check_ME(protocol, message, conn): # za sporočila in exit
     global games
-    if protocol == "#BOARD":  # Format: game_code:message
+    if protocol == "#MESSAGE":  # Format: game_code:message
         try:
             game_code, actual_message = message.split(":", 1)
             with lock:
@@ -259,6 +259,36 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
         except ValueError:
             print("Napaka pri obdelavi MOVE sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: startRow:startCol:endRow:endCol")
+    elif protocol == "#SURRENDER":
+        try:
+            game_code, unique_id = message.strip().split(":", 1)
+            with lock:
+                for match in games:
+                    if match.gameID == game_code:
+                        if match.uniqueCodeC1 == unique_id:
+                            send_response(match.socketC2, "#END", "Nasprotnik se je predal.")
+                            send_response(match.socketC1, "#END", "Predali ste se.")
+                        elif match.uniqueCodeC2 == unique_id:
+                            send_response(match.socketC1, "#END", "Nasprotnik se je predal.")
+                            send_response(match.socketC2, "#END", "Predali ste se.")
+
+                        match.resetGame()
+                        if match.whoIsWhite == 1:
+                            send_response(match.socketC1, "#BOARD", match.chessBoard)
+                            send_response(match.socketC2, "#BOARD", match.flipBoard())
+                        else:
+                            send_response(match.socketC1, "#BOARD", match.flipBoard())
+                            send_response(match.socketC2, "#BOARD", match.chessBoard)
+
+                        send_response(match.socketC1, "#AMWHITE", "True" if match.whoIsWhite == 1 else "False")
+                        send_response(match.socketC2, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
+
+                        print(f"Igralec {unique_id} se je predal v igri {game_code}")
+                        return
+                send_response(conn, "#ERROR", "Igre ni mogoče najti.")
+        except ValueError:
+            print("Napaka pri obdelavi SURRENDER sporočila")
+            send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
 
 def send_response(conn, protocol, message):
     try:

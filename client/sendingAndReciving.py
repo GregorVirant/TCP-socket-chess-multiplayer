@@ -17,8 +17,9 @@ legalMoves = None
 isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
-timer_started = False
+timerStarted = False
 
+timerThread = None
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
     legalMoves = legalMoves1
@@ -63,7 +64,7 @@ def listen_to_server(client,tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timer_started, amIWhite
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -93,6 +94,10 @@ def handle_server_response(protocol, message):
             amIWhite = False
     elif protocol == "#END":
         print(f"END: {message}")
+        timerStarted = False
+        if timerThread:
+            timerThread.join()
+        Time = "10:0:0 - 10:0:0"
 
     elif protocol == "#LEGALMOVES":
         legalMoves2 = ast.literal_eval(message)
@@ -107,9 +112,11 @@ def handle_server_response(protocol, message):
             enemyTime, myTime = message.split(":")
         Time = f"{toMinutesAndSeconds(myTime)} - {toMinutesAndSeconds(enemyTime)}"
         print(Time)
-        if not timer_started:
-            threading.Thread(target=start_timer, daemon=True).start()
-            timer_started = True
+        if not timerStarted:
+            timerStarted = True
+            timerThread = threading.Thread(target=start_timer, daemon=True)
+            timerThread.start()
+
     else:
         print(f"Neznana koda: {protocol} - {message}")
 
@@ -154,8 +161,8 @@ def protocol_decode(message):
         return None, None
     
 def start_timer():
-    global Time, isWhiteTurn, amIWhite
-    while True:
+    global Time, isWhiteTurn, amIWhite, timerStarted
+    while timerStarted:
         time.sleep(1)
         myTime, enemyTime = Time.split(" - ")
         if (isWhiteTurn and amIWhite) or (not isWhiteTurn and not amIWhite):

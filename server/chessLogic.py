@@ -22,6 +22,7 @@ class ChessBoard:
         self.castlingOptions = [True, True, True, True] #KQkq
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
+        
 
 
     def getBoard(self):
@@ -110,6 +111,7 @@ class ChessBoard:
     def makeMove(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
         legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
         if(legalMoves[newSquare[0]][newSquare[1]] < 2):
+            print("Move is not legal")
             return False
         
         piece = self.currBoard[originSquare[0]][originSquare[1]]
@@ -176,7 +178,6 @@ class ChessBoard:
             self.halfMoves = (0,0)
         self.moves.append([(originSquare),(newSquare)])
         return True
-        #castling TODO
 
     def _setBoard(self, bType): #_ pomeni da je metoda privatna
         match(bType):

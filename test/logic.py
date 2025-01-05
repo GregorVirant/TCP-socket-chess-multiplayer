@@ -8,7 +8,7 @@ class BoardType(Enum):
     THEORETICAL_STALEMATE_1 = 1
     THEORETICAL_STALEMATE_2 = 2
 
-
+import pickle
 
 
 
@@ -26,6 +26,14 @@ class ChessBoard:
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
         self.result = None
+        self.previousPositions = {}
+        self.previousPositions[pickle.dumps(self.currBoard)] = 1
+
+    def getPreviousPositions(self):
+        return self.previousPositions
+    
+    def _setPreviousPositions(self, positions: dict):
+        self.previousPositions = positions
 
     def _setResult(self, result:int):
         self.result = result
@@ -124,6 +132,9 @@ class ChessBoard:
     def makeMove(self, originSquare, newSquare):
         if not self.makeMove1(originSquare, newSquare):
             return False
+        if not self.storePosition(self.currBoard):
+            print("Draw due to three-fold repetition")
+            return True
         if self._isMate():
             print("White has won" if not self.isWhiteToMove else "Black has won")
             return True
@@ -565,6 +576,22 @@ class ChessBoard:
         matrix.reverse()
         for i in range(len(matrix)):
             matrix[i].reverse()
+
+    def storePosition(self, board):
+        hash = pickle.dumps(board)
+        
+        if hash in self.previousPositions:
+            #print("ponovitev")
+            self.previousPositions[hash] += 1
+            if self.previousPositions[hash] > 2:
+                self.result=0
+                return False
+        else:
+            self.previousPositions[hash] = 1
+        return True
+    
+
+    
 
 
 #end of class

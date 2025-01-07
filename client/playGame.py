@@ -21,7 +21,7 @@ legalMoves=[[0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0]]
 
-gui=Gui(1.3) #class for displaying the game and taking user input   (game scale)
+gui=Gui(1) #class for displaying the game and taking user input   (game scale)
 run = True
 
 def back():
@@ -50,12 +50,22 @@ def play(gui):
     while run:
         gui.loadEvents()
         if gui.shouldQuit():
+
             #tu se tak event seta tak da bo pol tut iz main quital
             #gui.eventQuit=False
             #return
             run = False
         gui.mouseClickedUpdate()     
         clicked = gui.buttonAndTextFieldCalculations()  
+
+        if not sendingAndReciving.gameStarted:
+            #print("Waiting for game to start")
+            gui.addText("WAITING FOR",coordinates=(175,300),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText("OPPONENT",coordinates=(175,390),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
+            gui.draw(board,legalMoves)
+            continue;
+
         if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()
             

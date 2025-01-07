@@ -18,6 +18,7 @@ isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
 timerStarted = False
+gameStarted = False
 
 timerThread = None
 def startSocket(board1, legalMoves1):
@@ -64,7 +65,7 @@ def listen_to_server(client,tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -72,6 +73,8 @@ def handle_server_response(protocol, message):
             current_game_code = message.split("Koda igre: ")[1]
     elif protocol == "#ERROR":
         print(f"NAPAKA: {message}")
+    elif protocol == "#GSTART":
+        gameStarted = True
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")
     elif protocol == "#GAMEID":

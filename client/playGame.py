@@ -31,11 +31,17 @@ def back():
 def surre():
     send_message("#SURRENDER")
 
+def enumerateBoard():
+    print("TODO")
+
+
+
 
 gui.state = GAME
-gui.addButton("Back",back,(630,860),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton("Surrender",surre,(400,860),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton("Change texture",gui.loadNextTexture,(630,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
+gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Oštevilči",enumerateBoard,(400+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
+gui.addButton("Change texture",gui.loadNextTexture,(630+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.state = MENU
 
 def play(gui):
@@ -73,8 +79,8 @@ def play(gui):
             else:
                 selectedPosition = None
 
-        gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
-        gui.addText(sendingAndReciving.Time,(50,855),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.draw(board,legalMoves)
     

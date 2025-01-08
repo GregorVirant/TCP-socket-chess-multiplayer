@@ -120,6 +120,12 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
                             send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
+
+                            send_response(match.socketC1,"#GSTART","")
+                            send_response(conn,"#GSTART","")
+
+                            match.start = True
+
                             return True
                         else:
                             send_response(conn, "#ISNOERRORS", "Full")
@@ -178,6 +184,9 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
             with lock:
                 for match in games:
                     if match.gameID == game_code:
+                        if not match.start:
+                            send_response(conn, "#ERROR", "Igra se še ni začela.")
+                            return                             
                         if not match.isPlayerTurn(unique_id):
                             send_response(conn, "#ERROR", "Nisi na vrsti.")
                             return
@@ -217,6 +226,9 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
             with lock:
                 for match in games:
                     if match.gameID == game_code:
+                        if not match.start:
+                            send_response(conn, "#ERROR", "Igra se še ni začela.")
+                            return      
                         if not match.isPlayerTurn(unique_id):
                             send_response(conn, "#ERROR", "Nisi na vrsti.")
                             return
@@ -283,6 +295,9 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
             with lock:
                 for match in games:
                     if match.gameID == game_code:
+                        if not match.start:
+                            send_response(conn, "#ERROR", "Igra se še ni začela.")
+                            return      
                         if match.uniqueCodeC1 == unique_id:
                             send_response(match.socketC2, "#END", "Nasprotnik se je predal.")
                             send_response(match.socketC1, "#END", "Predali ste se.")

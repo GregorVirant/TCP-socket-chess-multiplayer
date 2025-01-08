@@ -42,8 +42,7 @@ game.addTextField(5,54,865)
 game.addButton("Create",create,(150,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 game.addButton("Join",join,(230,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")      
 
-chessBoard = ChessBoard(BoardType.STANDARD)
-
+chessBoard = ChessBoard(0)
 while run:
         #can add fps limit
         game.loadEvents()
@@ -64,8 +63,8 @@ while run:
                         legalMoves = chessBoard._getEmptyBoard()
 
                 elif legalMoves[row][column] == 0: #when user click on a non selected square
-
                         legalMoves = chessBoard.getLegalMoves(row, column)
+
                 else: #user already selected a piece, now he wants to move it
 
                         pieceRow=0
@@ -84,5 +83,7 @@ while run:
 
 
         #print(legalMoves)
+        board = chessBoard.getBoard()
         game.draw(chessBoard.getBoard(),legalMoves)
+        turn = False
 game.close()

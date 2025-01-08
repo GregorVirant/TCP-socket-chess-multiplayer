@@ -18,8 +18,11 @@ isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
 timerStarted = False
+
 isThereNoErrors = "N/A"
 connectionError = False
+
+gameStarted = False
 
 timerThread = None
 def startSocket(board1, legalMoves1):
@@ -81,7 +84,9 @@ def listen_to_server(client, tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, isThereNoErrors
+
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors
+
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -90,6 +95,11 @@ def handle_server_response(protocol, message):
     elif protocol == "#ERROR":
         if "Igre ni mogoče najti." in message:
             isThereNoErrors = False
+
+        print(f"NAPAKA: {message}")
+    elif protocol == "#GSTART":
+        gameStarted = True
+
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")
     elif protocol == "#ISNOERRORS":

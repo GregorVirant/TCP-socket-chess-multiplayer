@@ -6,6 +6,8 @@ import os
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
     def __init__(self, gameID,socketC1,uniqueCodeC1):
+        self.start = False
+
         self.gameID = gameID
         self.socketC1 = socketC1
         self.uniqueCodeC1 = uniqueCodeC1

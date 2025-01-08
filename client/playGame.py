@@ -52,6 +52,10 @@ def play(gui):
     gui.startGame()
     
     while run:
+        if sendingAndReciving.connectionError:
+            print ("Connection error")
+            run = False
+            
         gui.loadEvents()
         if gui.shouldQuit():
             #tu se tak event seta tak da bo pol tut iz main quital
@@ -81,7 +85,7 @@ def play(gui):
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.draw(board,legalMoves)
-    
+        
 
 
     gui.startMenu()

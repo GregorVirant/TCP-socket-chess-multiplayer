@@ -18,6 +18,10 @@ isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
 timerStarted = False
+
+isThereNoErrors = "N/A"
+connectionError = False
+
 gameStarted = False
 
 timerThread = None
@@ -34,12 +38,25 @@ def startSocket(board1, legalMoves1):
         print("Napaka pri povezovanju s strežnikom:", e)
         return False
     threading.Thread(target=listen_to_server, args=(clientSocket,None), daemon=True).start()
+    threading.Thread(target=isConnectionError, daemon=True).start()
     return True
 
 def setGameCode(gameCode):
     global current_game_code
     current_game_code = gameCode
 
+def isConnectionError():
+    global connectionError, clientSocket
+    while True:
+        try:
+            if not send_message("#PING", includeGameId=False):
+                connectionError = True
+                return
+            time.sleep(1)
+        except Exception:
+            connectionError = True
+            break
+    
 def closeConnection():
     global current_game_code
     print("Zapiram povezavo")
@@ -49,7 +66,8 @@ def closeConnection():
     if clientSocket:
         clientSocket.close()
 
-def listen_to_server(client,tmp):
+def listen_to_server(client, tmp):
+    global connectionError
     while True:
         try:
             encrypted_data = client.recv(BUFFER_SIZE)
@@ -62,21 +80,39 @@ def listen_to_server(client,tmp):
                 handle_server_response(protocol, message)
         except Exception as e:
             print(f"Napaka pri prejemanju podatkov: {e}")
+            connectionError = True
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted
+
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors
+
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
         if "Igra je bila ustvarjena" in message:
             current_game_code = message.split("Koda igre: ")[1]
     elif protocol == "#ERROR":
+        if "Igre ni mogoče najti." in message:
+            isThereNoErrors = False
+
         print(f"NAPAKA: {message}")
     elif protocol == "#GSTART":
         gameStarted = True
+
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")
+    elif protocol == "#ISNOERRORS":
+        if message == "True":
+            isThereNoErrors = "True"
+        elif message == "False":
+            isThereNoErrors = "False"
+        elif message == "Full":
+            isThereNoErrors = "Full"
+        elif message == "Duplicate":
+            isThereNoErrors = "Duplicate"
+        else:
+            isThereNoErrors = "N/A"
     elif protocol == "#GAMEID":
         current_game_code = message
     elif protocol == "#BOARD":
@@ -134,16 +170,18 @@ def send_message(protocol, includeGameId=True, message=None):
     try:
         if includeGameId:
             if message == None:
-                full_message = f"{current_game_code.lower()}:{unique_id}"
+                full_message = f"{current_game_code.lower()}:{unique_id} " + "#/|/#"
             else:
-                full_message = f"{current_game_code.lower()}:{unique_id}:{message}"
+                full_message = f"{current_game_code.lower()}:{unique_id}:{message}" + "#/|/#"
         else:
-            full_message = f"{unique_id}"
+            full_message = f"{unique_id}" + "#/|/#"
         encoded_message = protocol_encode(protocol, full_message)
         encrypted_message = encoded_message.encode()
         clientSocket.sendall(encrypted_message)
     except Exception as e:
         print(f"Napaka pri pošiljanju: {e}")
+        return False
+    return True
 def splitIfPossible(message):
     try:
         message = message.split("#/|/#")

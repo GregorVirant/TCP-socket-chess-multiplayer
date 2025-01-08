@@ -222,7 +222,6 @@ class Gui:
         self.state = GAME
     def startMenu(self):
         self.state = MENU
-
     def draw(self,board=None,legalMoves=None):
         if self.state == MENU:
             self.drawMenu()

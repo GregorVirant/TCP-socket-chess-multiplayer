@@ -84,10 +84,12 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                 for match in games:
                     if match.gameID == game_code:
                         # če se hoče kdo reconnectat
+                        send_response(conn, "#ISVALIDGAMECODE", True)
                         if match.isPlayerReconnecting(unique_id):
                             match.reconnectPlayer(conn, unique_id)
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
+                           
                             sleep(1)
                             
                             tempBoard = match.chessBoard
@@ -112,6 +114,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             send_response(conn, "#ERROR", "Igra je že polna.")
                             return False
                 send_response(conn, "#ERROR", "Igre ni mogoče najti.")
+                send_response(conn, "#ISVALIDGAMECODE", False)
         except ValueError:
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
     return False
@@ -227,6 +230,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             print(notation)
                             print("BOARD:" + str(match.chessBoard))
                             print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
+                            match.updateBoard()
                             board1 = match.chessBoard
                             board2 = match.chessBoard
                             if match.whoIsWhite == 1:
@@ -289,6 +293,8 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
         except ValueError:
             print("Napaka pri obdelavi SURRENDER sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
+    elif protocol == "#PING":
+        pass
 
 def send_response(conn, protocol, message):
     try:

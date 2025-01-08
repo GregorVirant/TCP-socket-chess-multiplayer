@@ -34,7 +34,7 @@ class Game:
         else:
             return (uniqueId == self.uniqueCodeC1 and not self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and self.isWhiteTurn)
     
-    def _updateBoard(self):
+    def updateBoard(self):
         self.chessBoard = self.chess.currBoard
 
     def _updateTime(self):
@@ -53,7 +53,7 @@ class Game:
         moveMade = self.chess.makeMove(odlSquare, newSquare)
         if not moveMade:
             return False
-        self._updateBoard()
+        self.updateBoard()
         self._updateTime()
         self.isWhiteTurn = not self.isWhiteTurn
         self.turnNumber += 1

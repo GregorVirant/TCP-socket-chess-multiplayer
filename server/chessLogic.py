@@ -25,6 +25,9 @@ class ChessBoard:
         self.castlingOptions = [True, True, True, True] #KQkq
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
+
+        self.promoting= False;
+        
         self.result = None
         self.previousPositions = {}
         self.previousPositions[pickle.dumps(self.currBoard)] = 1
@@ -196,6 +199,17 @@ class ChessBoard:
             self.currBoard[originSquare[0]][newSquare[1]] = 0
         self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
         self.currBoard[originSquare[0]][originSquare[1]] = 0
+        
+        #promocija
+        if abs(piece) == 1:
+            #1 Pawn  2 Rook  3 Knight  4 Bishoup  5 Queen 6 King
+            piece = 5
+            if (not self.isWhiteToMove) and newSquare[0] == 0: #potezo nardil beli
+                self.promoting = True
+            if self.isWhiteToMove and newSquare[0] == 7:       #potezo nardil crn
+                self.promoting = True
+
+        
         #preverim ostale spremenljivke
 
         #preverjanje en passant

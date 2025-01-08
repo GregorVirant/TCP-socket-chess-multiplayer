@@ -64,6 +64,15 @@ def play(gui):
             run = False
         gui.mouseClickedUpdate()     
         clicked = gui.buttonAndTextFieldCalculations()  
+
+        if not sendingAndReciving.gameStarted:
+            #print("Waiting for game to start")
+            gui.addText("WAITING FOR",coordinates=(175,300),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText("OPPONENT",coordinates=(175,390),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
+            gui.draw(board,legalMoves)
+            continue;
+
         if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()
             

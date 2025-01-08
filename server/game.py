@@ -184,7 +184,11 @@ class Game:
         except Exception as e:
             print(f"Napaka pri generiranju notacije poteze: {e}")
             return None
-    
+        
+    def isDuplicateId(self,unique_id):
+        if self.uniqueCodeC1 == unique_id or self.uniqueCodeC2 == unique_id:
+            return True
+        
     def saveToFile(self):
         try:
             directory = "IGRE"

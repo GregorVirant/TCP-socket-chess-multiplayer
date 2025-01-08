@@ -52,7 +52,7 @@ def handle_client(conn):
                 for message in data:
                     protocol, data = protocol_decode(message)
                 if connectedToGame:
-                    protocol_check_ME(protocol, data, conn) # za sporočila in exit
+                    protocol_check_other(protocol, data, conn) # za sporočila in exit
                 else:
                     connectedToGame = protocol_check_CJ(protocol, data, conn) # za create in join
 
@@ -85,10 +85,16 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             with lock:
                 for match in games:
                     if match.gameID == game_code:
+                        
+                        # preveri, če je igralčev unique_id že v igri
+                        if match.isDuplicateId(unique_id):
+                            send_response(conn, "#ISNOERRORS", "Duplicate")
+                            return False
+                        
                         # če se hoče kdo reconnectat
                         if match.isPlayerReconnecting(unique_id):
                             match.reconnectPlayer(conn, unique_id)
-                            send_response(conn, "#ISVALIDGAMECODE", True)
+                            send_response(conn, "#ISNOERRORS", True)
 
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
@@ -104,7 +110,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             return True
                         # če se drugi pridružit igri
                         elif match.isOneSpaceEmpty():
-                            send_response(conn, "#ISVALIDGAMECODE", True)
+                            send_response(conn, "#ISNOERRORS", True)
                             match.addPlayer2(conn, unique_id)
                             print(f"Igralec {unique_id} se je pridružil igri {game_code}")
                             send_response(conn, "#INFO", f"Pridružili ste se igri {game_code}")
@@ -116,16 +122,16 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
                             return True
                         else:
-                            send_response(conn, "#ISVALIDGAMECODE", "Full")
+                            send_response(conn, "#ISNOERRORS", "Full")
                             send_response(conn, "#ERROR", "Igra je že polna.")
                             return False
                 send_response(conn, "#ERROR", "Igre ni mogoče najti.")
-                send_response(conn, "#ISVALIDGAMECODE", False)
+                send_response(conn, "#ISNOERRORS", False)
         except ValueError:
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
     return False
     
-def protocol_check_ME(protocol, message, conn): # za sporočila in exit
+def protocol_check_other(protocol, message, conn): # za sporočila in exit
     global games
     if protocol == "#PING":
         pass

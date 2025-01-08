@@ -14,21 +14,24 @@ errorText = ""
 startGameFlag = False  # Zastavica za začetek igre
 
 def waitForGameCodeResponse():
-    global errorText, startGameFlag  # Declare errorText and startGameFlag as global
+    global errorText, startGameFlag
     errorText = "Waiting for server response"
     for i in range(31):
         if i == 30:
             errorText = "No response from server"
             return
-        elif playGame.sendingAndReciving.validGameCode == "N/A":
+        elif playGame.sendingAndReciving.isThereNoErrors == "N/A":
             pass
-        elif playGame.sendingAndReciving.validGameCode == "True":
+        elif playGame.sendingAndReciving.isThereNoErrors == "True":
             startGameFlag = True  # Nastavi zastavico za začetek igre
             break
-        elif playGame.sendingAndReciving.validGameCode == "False":
+        elif playGame.sendingAndReciving.isThereNoErrors == "False":
             errorText = "Invalid game code"
             return
-        elif playGame.sendingAndReciving.validGameCode == "Full":
+        elif playGame.sendingAndReciving.isThereNoErrors == "Duplicate":
+            errorText = "Duplicate user id"
+            return
+        elif playGame.sendingAndReciving.isThereNoErrors == "Full":
             errorText = "Game is full"
             return
         else:
@@ -79,7 +82,7 @@ def joinGame():
     
     gameCodeRequiered = False
     playGame.sendingAndReciving.current_game_code = gameCode
-    playGame.sendingAndReciving.validGameCode = "N/A"
+    playGame.sendingAndReciving.isThereNoErrors = "N/A"
     playGame.send_message("#JOIN")
     
     Thread(target=waitForGameCodeResponse).start()

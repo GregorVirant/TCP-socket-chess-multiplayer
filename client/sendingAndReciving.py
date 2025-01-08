@@ -18,7 +18,7 @@ isWhiteTurn = True
 amIWhite = None
 Time = "10:0:0 - 10:0:0"
 timerStarted = False
-validGameCode = "N/A"
+isThereNoErrors = "N/A"
 connectionError = False
 
 timerThread = None
@@ -81,7 +81,7 @@ def listen_to_server(client, tmp):
             break
 
 def handle_server_response(protocol, message):
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, validGameCode
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, isThereNoErrors
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
         print(f"INFO: {message}")
@@ -89,18 +89,20 @@ def handle_server_response(protocol, message):
             current_game_code = message.split("Koda igre: ")[1]
     elif protocol == "#ERROR":
         if "Igre ni mogoče najti." in message:
-            validGameCode = False
+            isThereNoErrors = False
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")
-    elif protocol == "#ISVALIDGAMECODE":
+    elif protocol == "#ISNOERRORS":
         if message == "True":
-            validGameCode = "True"
+            isThereNoErrors = "True"
         elif message == "False":
-            validGameCode = "False"
+            isThereNoErrors = "False"
         elif message == "Full":
-            validGameCode = "Full"
+            isThereNoErrors = "Full"
+        elif message == "Duplicate":
+            isThereNoErrors = "Duplicate"
         else:
-            validGameCode = "N/A"
+            isThereNoErrors = "N/A"
     elif protocol == "#GAMEID":
         current_game_code = message
     elif protocol == "#BOARD":

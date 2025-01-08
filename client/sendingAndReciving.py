@@ -95,8 +95,12 @@ def handle_server_response(protocol, message):
     elif protocol == "#ISVALIDGAMECODE":
         if message == "True":
             validGameCode = "True"
-        else:
+        elif message == "False":
             validGameCode = "False"
+        elif message == "Full":
+            validGameCode = "Full"
+        else:
+            validGameCode = "N/A"
     elif protocol == "#GAMEID":
         current_game_code = message
     elif protocol == "#BOARD":
@@ -154,11 +158,11 @@ def send_message(protocol, includeGameId=True, message=None):
     try:
         if includeGameId:
             if message == None:
-                full_message = f"{current_game_code.lower()}:{unique_id}"
+                full_message = f"{current_game_code.lower()}:{unique_id} " + "#/|/#"
             else:
-                full_message = f"{current_game_code.lower()}:{unique_id}:{message}"
+                full_message = f"{current_game_code.lower()}:{unique_id}:{message}" + "#/|/#"
         else:
-            full_message = f"{unique_id}"
+            full_message = f"{unique_id}" + "#/|/#"
         encoded_message = protocol_encode(protocol, full_message)
         encrypted_message = encoded_message.encode()
         clientSocket.sendall(encrypted_message)

@@ -1,7 +1,7 @@
 import chessLogic
 import random
 import time
-import copy
+import os
 
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
@@ -187,7 +187,12 @@ class Game:
     
     def saveToFile(self):
         try:
-            with open(self.fileName, 'w') as file:
+            directory = "IGRE"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            
+            file_path = os.path.join(directory, self.fileName)
+            with open(file_path, 'w') as file:
                 file.write(f"Game ID: {self.gameID}\n")
                 file.write(f"Player 1: {self.uniqueCodeC1}\n")
                 file.write(f"Player 2: {self.uniqueCodeC2}\n")
@@ -198,6 +203,7 @@ class Game:
                     file.write(f"{move}\n")
         except Exception as e:
             print(f"Napaka pri shranjevanju igre v datoteko: {e}")
+
 
     def surrender(self, unique_id):
         if self.uniqueCodeC1 == unique_id:

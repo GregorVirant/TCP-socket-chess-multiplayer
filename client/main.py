@@ -28,6 +28,9 @@ def waitForGameCodeResponse():
         elif playGame.sendingAndReciving.validGameCode == "False":
             errorText = "Invalid game code"
             return
+        elif playGame.sendingAndReciving.validGameCode == "Full":
+            errorText = "Game is full"
+            return
         else:
             return
         sleep(0.1)

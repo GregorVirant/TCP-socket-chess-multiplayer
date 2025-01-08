@@ -31,8 +31,13 @@ def back():
 def surre():
     send_message("#SURRENDER")
 
+SHOW_ENUMERATION = False # variable that tells if the enumeration on board should be shown
+
+is_enumerated = False
+
 def enumerateBoard():
-    print("TODO")
+    global is_enumerated
+    is_enumerated = not is_enumerated
 
 
 gui.state = GAME
@@ -40,6 +45,13 @@ gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PUR
 gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Oštevilči",enumerateBoard,(400+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.addButton("Change texture",gui.loadNextTexture,(630+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
+
+
+
+
+
+
+
 gui.state = MENU
 
 def play(gui):
@@ -89,6 +101,16 @@ def play(gui):
                             legalMoves[i][j] = 0
             else:
                 selectedPosition = None
+        
+        if is_enumerated:
+            board_orientation_white = sendingAndReciving.isWhiteTurn
+            turn = 1 - 2 * (not board_orientation_white)
+
+            for i in range(8):
+                gui.addText(text=str(i+1), coordinates=(70, ((900 - turn*(i+1) * 100) % 900) +30))
+                gui.addText(text=chr(i + ord('a')), coordinates=((940 + 100 * turn * (i+1)) % 900, 900))
+       
+            
 
         gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)

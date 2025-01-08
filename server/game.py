@@ -1,7 +1,7 @@
 import chessLogic
 import random
 import time
-import copy
+import os
 
 class Game:
     #GAME ID JE SAMO POZICIJA KI JE V ARRAYI
@@ -36,7 +36,7 @@ class Game:
         else:
             return (uniqueId == self.uniqueCodeC1 and not self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and self.isWhiteTurn)
     
-    def _updateBoard(self):
+    def updateBoard(self):
         self.chessBoard = self.chess.currBoard
 
     def _updateTime(self):
@@ -55,7 +55,7 @@ class Game:
         moveMade = self.chess.makeMove(odlSquare, newSquare)
         if not moveMade:
             return False
-        self._updateBoard()
+        self.updateBoard()
         self._updateTime()
         self.isWhiteTurn = not self.isWhiteTurn
         self.turnNumber += 1
@@ -186,10 +186,19 @@ class Game:
         except Exception as e:
             print(f"Napaka pri generiranju notacije poteze: {e}")
             return None
-    
+        
+    def isDuplicateId(self,unique_id):
+        if self.uniqueCodeC1 == unique_id or self.uniqueCodeC2 == unique_id:
+            return True
+        
     def saveToFile(self):
         try:
-            with open(self.fileName, 'w') as file:
+            directory = "IGRE"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            
+            file_path = os.path.join(directory, self.fileName)
+            with open(file_path, 'w') as file:
                 file.write(f"Game ID: {self.gameID}\n")
                 file.write(f"Player 1: {self.uniqueCodeC1}\n")
                 file.write(f"Player 2: {self.uniqueCodeC2}\n")
@@ -200,6 +209,7 @@ class Game:
                     file.write(f"{move}\n")
         except Exception as e:
             print(f"Napaka pri shranjevanju igre v datoteko: {e}")
+
 
     def surrender(self, unique_id):
         if self.uniqueCodeC1 == unique_id:

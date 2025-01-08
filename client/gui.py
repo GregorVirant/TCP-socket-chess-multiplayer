@@ -11,7 +11,7 @@ class Gui:
         self.state = MENU
 
         self.scale = scale
-        self.borderWidth=50
+        self.borderWidth=100
         self.displayWidth=(800+2*self.borderWidth)*scale
         self.displayHeight=(800+2*self.borderWidth)*scale
         
@@ -222,7 +222,6 @@ class Gui:
         self.state = GAME
     def startMenu(self):
         self.state = MENU
-
     def draw(self,board=None,legalMoves=None):
         if self.state == MENU:
             self.drawMenu()
@@ -254,6 +253,7 @@ class Gui:
     def drawGame(self,board,colorMatrix):
         self.board.fill(colors.LIGHT_BLUE)
         pygame.draw.rect(self.board,colors.LIGHT_PURPLE,(self.borderWidth,self.borderWidth,800,800))
+        
         for i in range(8):
             for j in range(8):
                 if (i % 2 == 1 and j % 2 == 0) or (j % 2 == 1 and i % 2 == 0):

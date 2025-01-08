@@ -5,7 +5,10 @@ import copy
 
 class BoardType(Enum):
     STANDARD = 0
+    THEORETICAL_STALEMATE_1 = 1
+    THEORETICAL_STALEMATE_2 = 2
 
+import pickle
 
 
 
@@ -25,7 +28,24 @@ class ChessBoard:
 
         self.promoting= False;
         
+        self.result = None
+        self.previousPositions = {}
+        self.previousPositions[pickle.dumps(self.currBoard)] = 1
 
+    def getPreviousPositions(self):
+        return self.previousPositions
+    
+    def _setPreviousPositions(self, positions: dict):
+        self.previousPositions = positions
+
+    def _setResult(self, result:int):
+        self.result = result
+
+    def _setCastlingOptions(self, options):
+        self.castlingOptions = options
+
+    def _setHalfMoves(self, halfMoves):
+        self.halfMoves = halfMoves
 
     def getBoard(self):
         return self.currBoard
@@ -96,24 +116,43 @@ class ChessBoard:
                     if not self._isMoveLegalNoCheckAfterMove(row,column, rowT, columnT):
                         legalMoves[rowT][columnT] = 0
 
-    def getLegalMoves(self, row, column, checkForCheck = True):
+    def getLegalMoves(self, row, column, checkForCheck = True, checkIfCastlingLegal = True):
         legalMoves = self._getEmptyBoard()
+        if not self.result is None:
+            return legalMoves
+
         
         if(not (self.isWhiteToMove and self.currBoard[row][column] > 0 or not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             return legalMoves
 
-        self._calculateLegalMoves(row, column, legalMoves)
+        self._calculateLegalMoves(row, column, legalMoves,checkIfCastlingLegal)
 
         if checkForCheck:
             self._areMovesLegalNoCheckAfterMove(legalMoves)
 
         return legalMoves
 
-    
-    def makeMove(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
+    def makeMove(self, originSquare, newSquare):
+        if not self.makeMove1(originSquare, newSquare):
+            return False
+        if not self.storePosition(self.currBoard):
+            print("Draw due to three-fold repetition")
+            return "Draw due to three-fold repetition"
+        if self.isMate():
+            print("White has won" if not self.isWhiteToMove else "Black has won")
+            return "White has won" if not self.isWhiteToMove else "Black has won"
+        elif self._isDraw():
+            self.result = 0
+            return "Draw"
+        return True
+
+
+
+    def makeMove1(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
+        if not self.result is None:
+            return False
         legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
         if(legalMoves[newSquare[0]][newSquare[1]] < 2):
-            print("Move is not legal")
             return False
         
         piece = self.currBoard[originSquare[0]][originSquare[1]]
@@ -182,15 +221,16 @@ class ChessBoard:
         else:
             self.enPassantSquare=[]
         # polpoteze od zadnjega premika kmeta ali ujetja
-        if(legalMoves == 2):
-            if(self.isWhiteToMove):
-                self.halfMoves[0] += 1
+        if piece != 1 and legalMoves[newSquare[0]][newSquare[1]] != 0:
+            if not self.isWhiteToMove:
+                self.halfMoves = (self.halfMoves[0] + 1, self.halfMoves[1])
             else:
-                self.halfMoves[1] += 1
+                self.halfMoves = (self.halfMoves[0], self.halfMoves[1]+1)
         else:
             self.halfMoves = (0,0)
         self.moves.append([(originSquare),(newSquare)])
         return True
+
 
     def _setBoard(self, bType): #_ pomeni da je metoda privatna
         match(bType):
@@ -203,6 +243,52 @@ class ChessBoard:
                         [0,0,0,0,0,0,0,0],
                         [1,1,1,1,1,1,1,1],
                         [2,3,4,5,6,4,3,2]]
+            case 1:
+                return [[0,0,0,0,0,0,0,-6],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,-5,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [6,0,0,0,0,0,0,0]]
+            case 2:
+                return [[-6,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,5,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,6]]
+            case 3:
+                return [[-6,0,0,0,0,0,-3,-3],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [3,3,0,0,0,0,0,6]]
+            case 4:
+                return [[-6,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,4,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,6]]
+            case 5:
+                return [[-6,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [3,3,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [-4,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,6]]
+
             case _:#default
                 return [[-2,-3,-4,-5,-6,-4,-3,-2],
                         [-1,-1,-1,-1,-1,-1,-1,-1],
@@ -245,7 +331,7 @@ class ChessBoard:
                 piece = self.currBoard[i][j]
                 if (self.isWhiteToMove and piece > 0) or (not self.isWhiteToMove and piece < 0):
                     legalMoves = self._getEmptyBoard()
-                    legalMoves = self.getLegalMoves(i, j, checkForCheck=False)
+                    legalMoves = self.getLegalMoves(i, j, checkForCheck=False, checkIfCastlingLegal=False)
                     if legalMoves[row][column] != 0:
                         self.isWhiteToMove = originalTurn  # Povrnemo originalno vrednost
                         return True
@@ -331,7 +417,7 @@ class ChessBoard:
                     break
                 else:
                     break
-    def _legalMovesKing(self, row, column, legalMoves):
+    def _legalMovesKing(self, row, column, legalMoves, checkIfCastlingLegal = True):
         if self.currBoard[row][column] > 0:
             color = True
         else:
@@ -345,21 +431,21 @@ class ChessBoard:
                 legalMoves[row + moveRow][column + moveColumn] = 2
             elif self._isLegalTake(row + moveRow, column + moveColumn):
                 legalMoves[row + moveRow][column + moveColumn] = 3
-
+        if checkIfCastlingLegal:
         # Preveri rokado na kraljevi strani
-        if color and self.currBoard[row][column] == 6:  # Beli kralj
-            if self.castlingOptions[0] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
-                legalMoves[row][column + 2] = 2
-            if self.castlingOptions[1] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
-                legalMoves[row][column - 2] = 2
-        elif not color and self.currBoard[row][column] == -6:  # Črni kralj
-            if self.castlingOptions[2] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
-                legalMoves[row][column + 2] = 2
-            if self.castlingOptions[3] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
-                legalMoves[row][column - 2] = 2
+            if color and self.currBoard[row][column] == 6:  # Beli kralj
+                if self.castlingOptions[0] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                    legalMoves[row][column + 2] = 2
+                if self.castlingOptions[1] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                    legalMoves[row][column - 2] = 2
+            elif not color and self.currBoard[row][column] == -6:  # Črni kralj
+                if self.castlingOptions[2] and self._isCastlingLegal((row, column), (row, 7), (row, column + 2)):
+                    legalMoves[row][column + 2] = 2
+                if self.castlingOptions[3] and self._isCastlingLegal((row, column), (row, 0), (row, column - 2)):
+                    legalMoves[row][column - 2] = 2
 
 
-    def _calculateLegalMoves(self, row,column,legalMoves):
+    def _calculateLegalMoves(self, row,column,legalMoves,checkIfCastlingLegal = True):
         if(self.isWhiteToMove and self.currBoard[row][column] > 0 or (not self.isWhiteToMove and self.currBoard[row][column] < 0)):
             
             legalMoves[row][column] = 1
@@ -390,8 +476,139 @@ class ChessBoard:
                 return
 
             if piece == 6: # kralj
-                self._legalMovesKing(row,column,legalMoves)
+                self._legalMovesKing(row,column,legalMoves, checkIfCastlingLegal)
                 return
+    def isMate(self):
+        if(not self.isCheck(self.isWhiteToMove)):
+            return False
+        if self.isWhiteToMove:
+            factor =1
+        else:
+            factor = -1
+        legalMoves = self._getEmptyBoard()
+        for i in range(len(self.currBoard)):
+            for j in range(len(self.currBoard[i])):
+                if factor * self.currBoard[j][i] > 0:
+                    #print(f"preverjanje [{i}][{j}] - {self.getLegalMoves(i, j, legalMoves)}")
+                    legalMoves = self.getLegalMoves(j, i, legalMoves)
+                    if not self.legalMovesEmpty(legalMoves):
+
+                        
+                        return False
+        
+        self.result = factor
+        
+        return True
+    def _isDraw(self):
+        if(self._isStalemate50MoveRule()):
+            print("Draw due to 50 move rule")
+            return True
+        elif(self._isStalemate()):
+            print("Draw due to stalemate")
+            return True
+        elif self._isDrawDueToInsuficientMaterial():
+            print("Draw due to insuficient material")
+        
+        return False
+
+    def _isStalemate(self):
+        if(self.isCheck(self.isWhiteToMove)):
+            return False
+        for i in range(len(self.currBoard)):
+            for j in range(len(self.currBoard[i])):
+                if self.isWhiteToMove and self.currBoard[i][j] > 0 or not self.isWhiteToMove and self.currBoard[i][j] < 0:
+                    if not self.legalMovesEmpty(self.getLegalMoves(i, j)):
+                        return False
+        self.result = 0
+        return True
+    
+    def _isStalemate50MoveRule(self):
+        if self.halfMoves[0] >= 50 or self.halfMoves[1] >= 50:
+            self.result = 0
+            return True
+        else:
+            return False
+    def _isDrawDueToInsuficientMaterial(self):
+        #TODO
+        piecePositions = self.getAllPieces()
+        #izhod če najdemo kmeta, trdnjavo ali kraljico na polju
+        if piecePositions[1] > 0 or piecePositions[-1] > 0 or piecePositions[2] > 0 or piecePositions[-2] > 0 or piecePositions[5] > 0 or piecePositions[-5] > 0:
+            return False
+        #ima le še oba konje
+        elif piecePositions[3] == 2 and piecePositions[4] == 0 and piecePositions[-3] == 2 and piecePositions[-4] == 0:
+            self.result = 0
+            return True
+        #eden ima še 2 konja, drugi pa manj
+        elif piecePositions[3] == 2 and piecePositions[4] == 0 and (piecePositions[-3] + piecePositions[-4] < 2):
+            self.result = 0
+            return True
+        elif piecePositions[-3] == 2 and piecePositions[-4] == 0 and (piecePositions[3] + piecePositions[4] < 2):
+            self.result = 0
+            return True
+        elif (piecePositions[4] + piecePositions[3]) < 2 and (piecePositions[-4] + piecePositions[-3]) < 2:
+            self.result = 0
+            return True
+        return False
+
+    
+    def getAllPieces(self):
+        #TODO
+        piecePositions = {}
+        for i in range(-6,7):
+            piecePositions[i] = 0
+        for i in range(len(self.currBoard)):
+            for j in range(len(self.currBoard[i])):
+                if self.currBoard[i][j] != 0:
+                    if not self.currBoard[i][j] in piecePositions:
+                        piecePositions[self.currBoard[i][j]] = 1
+                    else:
+                        piecePositions[self.currBoard[i][j]] = piecePositions[self.currBoard[i][j]] + 1
+        return piecePositions
+        
+
+    def legalMovesEmpty(self, legalMoves):
+        for row in legalMoves:
+            for square in row:
+                if square > 1:
+                    return False
+        return True
+    
+    def getPiecePositions(self, pieceNum):
+        piecePositions = []
+        for i in range(len(self.currBoard)):
+            for j in range(len(self.currBoard[i])):
+                if self.currBoard[i][j] == pieceNum:
+                    piecePositions.append((i, j))
+        return piecePositions
+    
+    def _printMatrix(self, matrix):
+        for i in range(len(matrix)):
+            for j in range(len(matrix)):
+                print(f"{matrix[i][j]}", end=" ")
+            print("\n", end="")
+    
+    def reverseMatrix(self, matrix):
+        matrix.reverse()
+        for i in range(len(matrix)):
+            matrix[i].reverse()
+
+    def storePosition(self, board):
+        hash = pickle.dumps(board)
+        
+        if hash in self.previousPositions:
+            #print("ponovitev")
+            self.previousPositions[hash] += 1
+            if self.previousPositions[hash] > 2:
+                self.result=0
+                return False
+        else:
+            self.previousPositions[hash] = 1
+        return True
+    
+
+    
+
+
 #end of class
 
 
@@ -402,4 +619,3 @@ class ChessBoard:
 # def move(pieceRow,pieceColumn,clickedRow,clickedColumn,board):
 #     board[clickedRow][clickedColumn]=board[pieceRow][pieceColumn]
 #     board[pieceRow][pieceColumn]=0
-

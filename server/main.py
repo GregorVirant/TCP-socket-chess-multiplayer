@@ -48,9 +48,11 @@ def handle_client(conn):
                 if not data:
                     break
                 data = data.decode()
-                protocol, data = protocol_decode(data)
+                data = splitIfPossible(data)
+                for message in data:
+                    protocol, data = protocol_decode(message)
                 if connectedToGame:
-                    protocol_check_ME(protocol, data, conn) # za sporočila in exit
+                    protocol_check_other(protocol, data, conn) # za sporočila in exit
                 else:
                     connectedToGame = protocol_check_CJ(protocol, data, conn) # za create in join
 
@@ -83,21 +85,32 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             with lock:
                 for match in games:
                     if match.gameID == game_code:
+                        
+                        # preveri, če je igralčev unique_id že v igri
+                        if match.isDuplicateId(unique_id):
+                            send_response(conn, "#ISNOERRORS", "Duplicate")
+                            return False
+                        
                         # če se hoče kdo reconnectat
                         if match.isPlayerReconnecting(unique_id):
                             match.reconnectPlayer(conn, unique_id)
+                            send_response(conn, "#ISNOERRORS", True)
+
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
+                           
                             sleep(1)
                             
                             tempBoard = match.chessBoard
-                            if match.whoIsWhite == 1:
+                            match.updateBoard()
+                            if match.whoIsWhite != match.getPlayerNumber(unique_id):
                                 tempBoard = match.flipBoard()
                             send_response(conn, "#BOARD", tempBoard)
                             send_response(conn, "#AMWHITE", "True" if match.whoIsWhite == match.getPlayerNumber(unique_id) else "False")
                             return True
                         # če se drugi pridružit igri
                         elif match.isOneSpaceEmpty():
+                            send_response(conn, "#ISNOERRORS", True)
                             match.addPlayer2(conn, unique_id)
                             print(f"Igralec {unique_id} se je pridružil igri {game_code}")
                             send_response(conn, "#INFO", f"Pridružili ste se igri {game_code}")
@@ -115,16 +128,20 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
 
                             return True
                         else:
+                            send_response(conn, "#ISNOERRORS", "Full")
                             send_response(conn, "#ERROR", "Igra je že polna.")
                             return False
                 send_response(conn, "#ERROR", "Igre ni mogoče najti.")
+                send_response(conn, "#ISNOERRORS", False)
         except ValueError:
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
     return False
     
-def protocol_check_ME(protocol, message, conn): # za sporočila in exit
+def protocol_check_other(protocol, message, conn): # za sporočila in exit
     global games
-    if protocol == "#MESSAGE":  # Format: game_code:message
+    if protocol == "#PING":
+        pass
+    elif protocol == "#MESSAGE":  # Format: game_code:message
         try:
             game_code, actual_message = message.split(":", 1)
             with lock:
@@ -225,6 +242,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             if not match.isPlayerTurn(unique_id):
                                 send_response(conn, "#ERROR", "Nisi na vrsti.1")
                                 return
+
                             piece = int(piece)
                             startRow = int(startRow)
                             startCol = int(startCol)
@@ -240,6 +258,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                             print(f"PROMOTE TO {piece}")
                             match.chess.currBoard[endRow][endCol] = piece
                             #return
+
 
                             board1 = match.chessBoard
                             board2 = match.chessBoard
@@ -293,17 +312,17 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
                                 #preveri ce je koncana
                                 
                                 #    notation += "#"
-
+                                
                                 if match.chess.promoting:                
                                     send_response(conn, "#PROMO",message)
                                     return
-
-
+                                
                                 match.moves.append(notation)
                                 match.saveToFile()
                                 print(notation)
                                 print("BOARD:" + str(match.chessBoard))
                                 print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
+                                match.updateBoard()
                                 board1 = match.chessBoard
                                 board2 = match.chessBoard
                                 if match.whoIsWhite == 1:
@@ -369,6 +388,7 @@ def protocol_check_ME(protocol, message, conn): # za sporočila in exit
         except ValueError:
             print("Napaka pri obdelavi SURRENDER sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: game_code:uniqueID")
+    
 
 def send_response(conn, protocol, message):
     try:
@@ -380,6 +400,15 @@ def send_response(conn, protocol, message):
 def protocol_encode(protocol, message):
     return f"{protocol}/|/{message}"
 
+def splitIfPossible(message):
+    try:
+        message = message.split("#/|/#")
+        if message[-1] == "":
+            message.pop()
+        return message
+    except:
+        return message
+    
 def protocol_decode(message):
     try:
         protocol, content = message.split("/|/", 1)

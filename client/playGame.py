@@ -31,11 +31,8 @@ def back():
 def surre():
     send_message("#SURRENDER")
 
-<<<<<<< Updated upstream
 def enumerateBoard():
     print("TODO")
-
-
 
 
 gui.state = GAME
@@ -43,16 +40,6 @@ gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PUR
 gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Oštevilči",enumerateBoard,(400+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.addButton("Change texture",gui.loadNextTexture,(630+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
-=======
-def changeBoardEnumeration():
-    print("TODO")
-
-gui.state = GAME
-gui.addButton("Back",back,(630,860+70),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton(text="označbe", action=changeBoardEnumeration, buttonCoordinates=(350+50,5+20), fontSize=24, borderRadius=5, bold=True,buttonColor=colors.LIGHT_PURPLE, hoverColor=colors.PURPLE, buttonSize=(220,30), font="arial")
-gui.addButton("Surrender",surre,(400,860+70),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton("Change texture",gui.loadNextTexture,(630,5+20),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
->>>>>>> Stashed changes
 gui.state = MENU
 
 def play(gui):
@@ -67,22 +54,12 @@ def play(gui):
     while run:
         gui.loadEvents()
         if gui.shouldQuit():
-
             #tu se tak event seta tak da bo pol tut iz main quital
             #gui.eventQuit=False
             #return
             run = False
         gui.mouseClickedUpdate()     
         clicked = gui.buttonAndTextFieldCalculations()  
-
-        if not sendingAndReciving.gameStarted:
-            #print("Waiting for game to start")
-            gui.addText("WAITING FOR",coordinates=(175,300),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText("OPPONENT",coordinates=(175,390),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
-            gui.draw(board,legalMoves)
-            continue;
-
         if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()
             
@@ -100,13 +77,8 @@ def play(gui):
             else:
                 selectedPosition = None
 
-<<<<<<< Updated upstream
         gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
-=======
-        gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50,0+20),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
-        gui.addText(sendingAndReciving.Time,(50,855+70),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
->>>>>>> Stashed changes
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.draw(board,legalMoves)
     

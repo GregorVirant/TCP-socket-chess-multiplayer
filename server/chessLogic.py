@@ -158,6 +158,17 @@ class ChessBoard:
             self.currBoard[originSquare[0]][newSquare[1]] = 0
         self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
         self.currBoard[originSquare[0]][originSquare[1]] = 0
+        
+        #promocija
+        if abs(piece) == 1:
+            #1 Pawn  2 Rook  3 Knight  4 Bishoup  5 Queen 6 King
+            if (not self.isWhiteToMove) and newSquare[0] == 0: #potezo nardil beli
+                piece = self._pick_for_promotion()
+                self.currBoard[newSquare[0]][newSquare[1]] = piece
+            if self.isWhiteToMove and newSquare[0] == 7:       #potezo nardil crn
+                piece = self._pick_for_promotion()
+                self.currBoard[newSquare[0]][newSquare[1]] = -piece
+        
         #preverim ostale spremenljivke
 
         #preverjanje en passant

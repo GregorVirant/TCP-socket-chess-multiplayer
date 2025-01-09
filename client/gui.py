@@ -4,6 +4,7 @@ from button import *
 
 MENU = 0
 GAME = 1
+PICK_FIGURE = 2
 
 class Gui: 
     def __init__(self,scale):
@@ -19,20 +20,20 @@ class Gui:
         
         self.scaledScreen = pygame.display.set_mode([self.displayWidth,self.displayHeight])  
 
-        self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth))
+        self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)
 
         self.board = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth))
         self.square_size = 100
         self.mouseIsPressed = False
 
-        self.textImages = [[],[]]
-        self.textImagesCoordinates = [[],[]]
-        self.textImagesPermanent = [[],[]]
-        self.textImagesPermanentCoordinates = [[],[]]
+        self.textImages = [[],[],[]]
+        self.textImagesCoordinates = [[],[],[]]
+        self.textImagesPermanent = [[],[],[]]
+        self.textImagesPermanentCoordinates = [[],[],[]]
 
-        self.buttons = [[],[]]
-        self.textFields = [[],[]]
-        self.textFieldSelected=[None,None]
+        self.buttons = [[],[],[]]
+        self.textFields = [[],[],[]]
+        self.textFieldSelected=[None,None,None]
 
         self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
 
@@ -225,9 +226,30 @@ class Gui:
     def draw(self,board=None,legalMoves=None):
         if self.state == MENU:
             self.drawMenu()
+        if self.state == PICK_FIGURE:
+            self.drawPickFigure()
         else:
             if board and legalMoves:
                 self.drawGame(board,legalMoves)
+    def drawPickFigure(self):
+        self.menu.fill(colors.BLACK+(120,))
+        for i, textImage in enumerate(self.textImages[self.state]):
+            self.menu.blit(textImage,self.textImagesCoordinates[self.state][i])
+        self.textImages[self.state].clear()
+        self.textImagesCoordinates[self.state].clear()
+
+        for i, textImage in enumerate(self.textImagesPermanent[self.state]):
+            self.menu.blit(textImage,self.textImagesPermanentCoordinates[self.state][i])
+
+        for button in self.buttons[self.state]:
+            button.draw(self.menu)
+
+        for textField in self.textFields[self.state]:
+            textField.draw(self.menu)
+
+
+        self.scaledScreen.blit(pygame.transform.scale(self.menu, (self.displayWidth,self.displayHeight)),(0,0))
+        pygame.display.flip()        
 
     def drawMenu(self):
         self.menu.fill(colors.PURPLE)

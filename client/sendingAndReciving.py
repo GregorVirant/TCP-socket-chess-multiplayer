@@ -23,6 +23,9 @@ isThereNoErrors = "N/A"
 connectionError = False
 
 gameStarted = False
+promoting = False
+promotion_pick = 0
+promotion_message = ""
 
 timerThread = None
 def startSocket(board1, legalMoves1):
@@ -82,15 +85,10 @@ def listen_to_server(client, tmp):
             print(f"Napaka pri prejemanju podatkov: {e}")
             connectionError = True
             break
-def _pick_for_promotion():
-    while True:
-        p = input("Izberi figuro v katero se spremeni kmet pri promociji:\n 1 Rook  2 Knight  3 Bishoup  4 Queen\n")
-        if p.isdigit() and int(p) >= 1 and int(p) <= 4:
-            break;
-    return int(p) + 1
+
 def handle_server_response(protocol, message):
 
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, promoting,promotion_message
 
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
@@ -106,9 +104,11 @@ def handle_server_response(protocol, message):
         gameStarted = True
 
     elif protocol == "#PROMO":
+        promoting = True
         parts1 = message.strip().split(":",2) 
-        m = parts1[2] + f":{_pick_for_promotion()}"
-        send_message("#MOVE",message=m)
+        promotion_message = parts1[2]
+        #m = parts1[2] + f":{_pick_for_promotion()}"
+        #send_message("#MOVE",message=m)
 
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")

@@ -1,6 +1,7 @@
 from gui import *
 import sendingAndReciving
 from sendingAndReciving import closeConnection,startSocket,setGameCode, send_message
+from menuPromotion import pickFigure	
 
 board=[[-2,-3,-4,-5,-6,-4,-3,-2],
         [-1,-1,-1,-1,-1,-1,-1,-1],
@@ -39,7 +40,6 @@ def enumerateBoard():
     global is_enumerated
     is_enumerated = not is_enumerated
 
-
 gui.state = GAME
 gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
@@ -47,9 +47,13 @@ gui.addButton("Oštevilči",enumerateBoard,(400+50,5),(220,30),buttonColor=color
 gui.addButton("Change texture",gui.loadNextTexture,(630+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 
 
+gui.state = PICK_FIGURE
 
-
-
+def pickPiece(p1): sendingAndReciving.promotion_pick = p1
+gui.addButton("Rook",lambda: pickPiece(2),(600,300),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Knight",lambda: pickPiece(3),(600,400),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Bishop",lambda: pickPiece(4),(600,500),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Queen",lambda: pickPiece(5),(600,600),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 
 
 gui.state = MENU
@@ -84,6 +88,28 @@ def play(gui):
             gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
             gui.draw(board,legalMoves)
             continue;
+
+        if sendingAndReciving.promoting:
+            #piece = pickFigure(gui)
+            #sendingAndReciving.send_message("#MOVE",message=f"{sendingAndReciving.promotion_message}:{piece}")
+            gui.state = PICK_FIGURE
+            sendingAndReciving.promoting = False
+            gui.draw()
+            while (True):
+                gui.loadEvents()
+                if gui.shouldQuit():
+                    run = False
+                    break
+                gui.mouseClickedUpdate()     
+                clicked = gui.buttonAndTextFieldCalculations()  
+                if sendingAndReciving.promotion_pick != 0:
+                    print("CHOSEN")
+                    sendingAndReciving.send_message("#MOVE",message=f"{sendingAndReciving.promotion_message}:{sendingAndReciving.promotion_pick}")
+
+                    sendingAndReciving.promotion_pick = 0
+                    gui.state = GAME
+                    gui.draw()
+                    break
 
         if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()

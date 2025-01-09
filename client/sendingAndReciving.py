@@ -23,14 +23,17 @@ isThereNoErrors = "N/A"
 connectionError = False
 
 gameStarted = False
-
 timerThread = None
+
+lastMoveStart = (1,2)
+lastMoveEnd = (1,1)
+wasLastMoveMine = False
+
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
     legalMoves = legalMoves1
     board = board1
 
-    
     try:
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientSocket.connect((SERVER_IP, PORT))
@@ -85,7 +88,7 @@ def listen_to_server(client, tmp):
 
 def handle_server_response(protocol, message):
 
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, lastMoveStart, lastMoveEnd, wasLastMoveMine
 
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
@@ -137,7 +140,15 @@ def handle_server_response(protocol, message):
         if timerThread:
             timerThread.join()
         Time = "10:0:0 - 10:0:0"
-
+        if message == "Surrender":
+            print("SURRENDER")
+        elif message == "White wins":
+            print("WHITE WINS")
+        elif message == "Black wins":
+            print("BLACK WINS")
+        elif message == "Draw":
+            print("DRAW")
+    
     elif protocol == "#LEGALMOVES":
         legalMoves2 = ast.literal_eval(message)
         for i in range(8):
@@ -155,7 +166,20 @@ def handle_server_response(protocol, message):
             timerStarted = True
             timerThread = threading.Thread(target=start_timer, daemon=True)
             timerThread.start()
-
+    
+    elif protocol == "#MOVEMADE":
+        print(f"MOVEMADE: {message}")
+        oldRow, oldCol, newRow, newCol = map(int, message.split(":"))
+        if not amIWhite:
+            oldRow = 7 - oldRow
+            oldCol = 7 - oldCol
+            newRow = 7 - newRow
+            newCol = 7 - newCol
+        lastMoveStart = (oldRow, oldCol)
+        lastMoveEnd = (newRow, newCol)
+        wasLastMoveMine = isWhiteTurn == amIWhite
+    elif protocol == "#PING": #za testiranje povezave
+        pass
     else:
         print(f"Neznana koda: {protocol} - {message}")
 
@@ -211,6 +235,7 @@ def start_timer():
         else:
             enemyTime = decrement_time(enemyTime)
         Time = f"{myTime} - {enemyTime}"
+    Time = "10:0:0 - 10:0:0"
 
 def decrement_time(timeStr):
     minutes, seconds, tenths = map(int, timeStr.split(":"))

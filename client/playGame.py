@@ -40,6 +40,11 @@ def enumerateBoard():
     global is_enumerated
     is_enumerated = not is_enumerated
 
+end_back_button = False
+def setEndBackButton():
+    global end_back_button
+    end_back_button = True
+
 gui.state = GAME
 gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
@@ -55,11 +60,14 @@ gui.addButton("Knight",lambda: pickPiece(3),(600,400),(200,50),buttonColor=color
 gui.addButton("Bishop",lambda: pickPiece(4),(600,500),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Queen",lambda: pickPiece(5),(600,600),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 
+gui.state = GAME_END
+
+gui.addButton("Main menu",setEndBackButton,(400,470),(200,50),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 
 gui.state = MENU
 
 def play(gui):
-    global run
+    global run,end_back_button
     #send_message("#M", client, f"{current_game_code}:{message}")
     #position=game.mouseGetBoardPosition()
     selectedPosition = None
@@ -81,6 +89,24 @@ def play(gui):
         gui.mouseClickedUpdate()     
         clicked = gui.buttonAndTextFieldCalculations()  
 
+        if sendingAndReciving.game_ended:
+            print(gui.state)
+            print("GAME END:  ",sendingAndReciving.game_end_message)
+            gui.state = GAME_END
+            gui.addText(sendingAndReciving.game_end_message,coordinates=(150,390),fontSize=80,color=colors.BLACK,bold=True)
+            gui.draw()
+
+            while not end_back_button:
+                gui.loadEvents()
+                if gui.shouldQuit():
+                    run = False
+                    break
+                gui.mouseClickedUpdate()     
+                clicked = gui.buttonAndTextFieldCalculations()  
+                #gui.draw()
+            sendingAndReciving.game_ended = False
+            end_back_button = False
+            run = False
         if not sendingAndReciving.gameStarted:
             #print("Waiting for game to start")
             gui.addText("WAITING FOR",coordinates=(175,300),fontSize=115,color=colors.BLACK,bold=True)

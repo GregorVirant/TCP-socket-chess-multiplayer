@@ -1,6 +1,6 @@
 import pygame
 class Button():
-    def __init__(self,textImage,textImagePos,rect,action,buttonColor,borderRadius,hoverColor):
+    def __init__(self,textImage,textImagePos,rect,action,buttonColor,borderRadius,hoverColor, borderColor = (0,0,0), borderThickness=2):
         self.textImage=textImage
         self.textImagePos=textImagePos
         self.rect=rect
@@ -9,9 +9,13 @@ class Button():
         self.buttonColor=buttonColor
         self.borderRadius=borderRadius
         self.hoverColor=hoverColor
+        self.borderColor= borderColor
+        self.borderThickness = borderThickness
     def draw(self,surface): 
         #Draws the button rectangle and the text on top of it
         pygame.draw.rect(surface,self.buttonColor,self.rect,border_radius=self.borderRadius)
+        pygame.draw.rect(surface, self.borderColor, self.rect, self.borderThickness, border_radius=self.borderRadius)
+
         surface.blit(self.textImage,self.textImagePos)  
     def calculateClick(self,posX,posY,isPressed):
         #colors the button if is hover over with a mouse,and starts the action if the button is clicked

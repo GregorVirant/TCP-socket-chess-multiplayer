@@ -195,6 +195,17 @@ class ChessBoard:
             self.currBoard[originSquare[0]][newSquare[1]] = 0
         self.currBoard[newSquare[0]][newSquare[1]] = self.currBoard[originSquare[0]][originSquare[1]]
         self.currBoard[originSquare[0]][originSquare[1]] = 0
+
+        #promocija
+        if abs(piece) == 1:
+            #1 Pawn  2 Rook  3 Knight  4 Bishoup  5 Queen 6 King
+            if (not self.isWhiteToMove) and newSquare[0] == 0: #potezo nardil beli
+                piece = self._pick_for_promotion()
+                self.currBoard[newSquare[0]][newSquare[1]] = piece
+            if self.isWhiteToMove and newSquare[0] == 7:       #potezo nardil crn
+                piece = self._pick_for_promotion()
+                self.currBoard[newSquare[0]][newSquare[1]] = -piece
+
         #preverim ostale spremenljivke
 
         #preverjanje en passant
@@ -216,6 +227,12 @@ class ChessBoard:
         self.moves.append([(originSquare),(newSquare)])
         return True
 
+    def _pick_for_promotion(self):
+        while True:
+            p = input("Izberi figuro v katero se spremeni kmet pri promociji:\n 1 Rook  2 Knight  3 Bishoup  4 Queen\n")
+            if p.isdigit() and int(p) >= 1 and int(p) <= 4:
+                break;
+        return int(p) + 1
 
     def _setBoard(self, bType): #_ pomeni da je metoda privatna
         match(bType):

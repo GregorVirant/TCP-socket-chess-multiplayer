@@ -23,6 +23,11 @@ isThereNoErrors = "N/A"
 connectionError = False
 
 gameStarted = False
+
+promoting = False
+promotion_pick = 0
+promotion_message = ""
+
 timerThread = None
 
 lastMoveStart = (1,2)
@@ -87,8 +92,8 @@ def listen_to_server(client, tmp):
             break
 
 def handle_server_response(protocol, message):
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, lastMoveStart, lastMoveEnd, wasLastMoveMine, promoting,promotion_message
 
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, lastMoveStart, lastMoveEnd, wasLastMoveMine
 
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
@@ -103,6 +108,13 @@ def handle_server_response(protocol, message):
     elif protocol == "#GSTART":
         gameStarted = True
 
+    elif protocol == "#PROMO":
+        promoting = True
+        parts1 = message.strip().split(":",2) 
+        promotion_message = parts1[2]
+        #m = parts1[2] + f":{_pick_for_promotion()}"
+        #send_message("#MOVE",message=m)
+
     elif protocol == "#M":
         print(f"SPOROČILO: {message}")
     elif protocol == "#ISNOERRORS":
@@ -116,6 +128,7 @@ def handle_server_response(protocol, message):
             isThereNoErrors = "Duplicate"
         else:
             isThereNoErrors = "N/A"
+
     elif protocol == "#GAMEID":
         current_game_code = message
     elif protocol == "#BOARD":

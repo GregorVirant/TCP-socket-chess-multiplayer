@@ -30,8 +30,8 @@ promotion_message = ""
 
 timerThread = None
 
-lastMoveStart = (1,2)
-lastMoveEnd = (1,1)
+lastMoveStart = (-1,-1)
+lastMoveEnd = (-1,-1)
 wasLastMoveMine = False
 
 def startSocket(board1, legalMoves1):
@@ -190,7 +190,6 @@ def handle_server_response(protocol, message):
             newCol = 7 - newCol
         lastMoveStart = (oldRow, oldCol)
         lastMoveEnd = (newRow, newCol)
-        wasLastMoveMine = isWhiteTurn == amIWhite
     elif protocol == "#PING": #za testiranje povezave
         pass
     else:

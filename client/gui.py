@@ -48,7 +48,6 @@ class Gui:
 
         self.lastMoveStart = (-1,-1)
         self.lastMoveEnd = (-1,-1)
-        self.wasLastMoveMine = False
         
     def loadNextTexture(self):
         if self.texture >= len(self.textures):

@@ -389,16 +389,16 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             send_response(match.socketC1, "#END", "Nasprotnik se je predal.")
                             send_response(match.socketC2, "#END", "Predali ste se.")
 
-                        match.resetGame()
-                        if match.whoIsWhite == 1:
-                            send_response(match.socketC1, "#BOARD", match.chessBoard)
-                            send_response(match.socketC2, "#BOARD", match.flipBoard())
-                        else:
-                            send_response(match.socketC1, "#BOARD", match.flipBoard())
-                            send_response(match.socketC2, "#BOARD", match.chessBoard)
+                        # match.resetGame()
+                        # if match.whoIsWhite == 1:
+                        #     send_response(match.socketC1, "#BOARD", match.chessBoard)
+                        #     send_response(match.socketC2, "#BOARD", match.flipBoard())
+                        # else:
+                        #     send_response(match.socketC1, "#BOARD", match.flipBoard())
+                        #     send_response(match.socketC2, "#BOARD", match.chessBoard)
 
-                        send_response(match.socketC1, "#AMWHITE", "True" if match.whoIsWhite == 1 else "False")
-                        send_response(match.socketC2, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
+                        # send_response(match.socketC1, "#AMWHITE", "True" if match.whoIsWhite == 1 else "False")
+                        # send_response(match.socketC2, "#AMWHITE", "True" if match.whoIsWhite == 2 else "False")
 
                         print(f"Igralec {unique_id} se je predal v igri {game_code}")
                         return

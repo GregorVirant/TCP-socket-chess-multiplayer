@@ -46,6 +46,9 @@ class Gui:
         self.eventQuit = False
         self.eventCharWritten = ""
         self.eventCharDeleted = False
+
+        self.lastMoveStart = (-1,-1)
+        self.lastMoveEnd = (-1,-1)
         
     def loadNextTexture(self):
         if self.texture >= len(self.textures):
@@ -281,6 +284,8 @@ class Gui:
             for j in range(8):
                 if (i % 2 == 1 and j % 2 == 0) or (j % 2 == 1 and i % 2 == 0):
                     pygame.draw.rect(self.board,colors.PURPLE,(self.square_size*j+self.borderWidth,self.square_size*i+self.borderWidth,self.square_size,self.square_size))
+                if (i == self.lastMoveStart[0] and j == self.lastMoveStart[1]) or (i == self.lastMoveEnd[0] and j == self.lastMoveEnd[1]):
+                    pygame.draw.rect(self.board, colors.DARK_YELLOW if (i % 2 == 1 and j % 2 == 0) or (j % 2 == 1 and i % 2 == 0) else colors.LIGHT_YELLOW, (self.square_size * j + self.borderWidth, self.square_size * i + self.borderWidth, self.square_size, self.square_size))
                 if colorMatrix[i][j] != 0:
                     pygame.draw.rect(self.board,self.colorsForLegalMoves[colorMatrix[i][j]-1],(self.square_size*j+self.square_size*0.15+self.borderWidth,self.square_size*i+self.square_size*0.15+self.borderWidth,self.square_size-self.square_size*0.3,self.square_size-self.square_size*0.3))
                 if(board[i][j]==0):

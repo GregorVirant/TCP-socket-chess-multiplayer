@@ -26,6 +26,7 @@ run = True
 
 def back():
     global run
+    sendingAndReciving.timerStarted = False
     run = False
 
 def surre():
@@ -166,6 +167,9 @@ def play(gui):
         gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+
+        gui.lastMoveStart = sendingAndReciving.lastMoveStart
+        gui.lastMoveEnd = sendingAndReciving.lastMoveEnd
         gui.draw(board,legalMoves)
         
 

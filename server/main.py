@@ -3,7 +3,6 @@ import uuid
 import game
 import threading
 import socket
-import pickle
 from time import sleep
 
 HOST = '127.0.0.1'
@@ -76,6 +75,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             print(f"Ustvarjena igra z id: {game_code}")
             send_response(conn, "#INFO", f"Igra je bila ustvarjena. Koda igre: {game_code}")
             send_response(conn, "#AMWHITE", "True" if createdMatch.whoIsWhite == 1 else "False")
+            threading.Thread(target=checkIfNoTime, args=(game_code,), daemon=True).start()
             return True
     elif protocol == "#JOIN":  # Format: game_code:uniqueID
         try:
@@ -89,6 +89,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                         # preveri, če je igralčev unique_id že v igri
                         if match.isDuplicateId(unique_id):
                             send_response(conn, "#ISNOERRORS", "Duplicate")
+                            print(f"Duplicate")
                             return False
                         
                         # če se hoče kdo reconnectat
@@ -259,7 +260,6 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             match.chess.currBoard[endRow][endCol] = piece
                             #return
 
-
                             board1 = match.chessBoard
                             board2 = match.chessBoard
                             if match.whoIsWhite == 1:
@@ -270,18 +270,22 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC1, "#BOARD", board1)
                                 send_response(match.socketC1, "#INFO", "Poteza uspešno narejena.")
+                                send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                                 if match.socketC2 is not None:
                                     send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC2, "#BOARD", board2)
                                     send_response(match.socketC2, "#INFO", "Nasprotnik je naredil potezo.")
+                                    send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                             elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
                                 send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC2, "#BOARD", board2)
                                 send_response(match.socketC2, "#INFO", "Poteza uspešno narejena.")
+                                send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                                 if match.socketC1 is not None:
                                     send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
+                                    send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                             print(f"Legalne poteze poslane igralcu {unique_id}")
                             send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
@@ -309,9 +313,9 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                     return
                                 if match.chess.isCheck(match.chess.isWhiteToMove):
                                     notation += "+"
-                                #preveri ce je koncana
-                                
-                                #    notation += "#"
+                                if match.chess.isMate():
+                                  notation += "#"
+
                                 
                                 if match.chess.promoting:                
                                     send_response(conn, "#PROMO",message)
@@ -427,6 +431,23 @@ def wait_exit():  # Zaustavitev strežnika z ukazom 'exit'
             if s:
                 s.close()  # Zapiranje socketa
             break
+
+def checkIfNoTime(gameid):
+    for match in games:
+        if match.gameID == gameid:
+            while match.isRunning:
+                isNoTime = match.checkTime()
+                if isNoTime == "B":
+                    send_response(match.socketC1, "#END", "Nasprotniku je zmanjkalo časa.")
+                    send_response(match.socketC2, "#END", "Čas vam je potekel.")
+                    break
+                elif isNoTime == "W":
+                    send_response(match.socketC1, "#END", "Čas vam je potekel.")
+                    send_response(match.socketC2, "#END", "Nasprotniku je zmanjkalo časa.")
+                    break
+                sleep(1)
+    return None
+    
 
 if __name__ == "__main__":
     main()

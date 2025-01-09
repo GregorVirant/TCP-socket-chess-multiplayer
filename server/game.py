@@ -30,6 +30,8 @@ class Game:
         
         self.fileName = f"game{self.gameID}.txt"
 
+        self.isRunning = True
+
     def isPlayerTurn(self, uniqueId):
         if self.whoIsWhite == 1:
             return (uniqueId == self.uniqueCodeC1 and self.isWhiteTurn) or (uniqueId == self.uniqueCodeC2 and not self.isWhiteTurn)
@@ -188,9 +190,11 @@ class Game:
             return None
         
     def isDuplicateId(self,unique_id):
-        if self.uniqueCodeC1 == unique_id or self.uniqueCodeC2 == unique_id:
+        if (self.uniqueCodeC1 == unique_id and self.socketC1 is not None) or (self.uniqueCodeC2 == unique_id and self.socketC2 is not None):
             return True
-        
+        return False
+    
+    
     def saveToFile(self):
         try:
             directory = "IGRE"
@@ -227,5 +231,20 @@ class Game:
         self.timeWhite = 600  # 10 minutes in seconds
         self.timeBlack = 600  # 10 minutes in seconds
         self.lastMoveTime = time.time()
+    
+
+    def checkTime(self):
+        if self.moves == []:
+            return False
+        if self.isWhiteTurn:
+            timeLeft = self.timeWhite - (time.time() - self.lastMoveTime)
+        else:
+            timeLeft = self.timeBlack - (time.time() - self.lastMoveTime)
+        if timeLeft <= 0:
+            if self.isWhiteTurn:
+                return "W"
+            else:
+                return "B"
+        return False
         
 

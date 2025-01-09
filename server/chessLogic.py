@@ -203,7 +203,6 @@ class ChessBoard:
         #promocija
         if abs(piece) == 1:
             #1 Pawn  2 Rook  3 Knight  4 Bishoup  5 Queen 6 King
-            piece = 5
             if (not self.isWhiteToMove) and newSquare[0] == 0: #potezo nardil beli
                 self.promoting = True
             if self.isWhiteToMove and newSquare[0] == 7:       #potezo nardil crn

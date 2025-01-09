@@ -27,6 +27,9 @@ promoting = False
 promotion_pick = 0
 promotion_message = ""
 
+game_ended = False
+game_end_message = ""
+
 timerThread = None
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn
@@ -88,7 +91,7 @@ def listen_to_server(client, tmp):
 
 def handle_server_response(protocol, message):
 
-    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, promoting,promotion_message
+    global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, promoting,promotion_message,game_end_message,game_ended
 
     print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
@@ -143,6 +146,8 @@ def handle_server_response(protocol, message):
         else:
             amIWhite = False
     elif protocol == "#END":
+        game_ended = True
+        game_end_message = message
         print(f"END: {message}")
         timerStarted = False
         if timerThread:

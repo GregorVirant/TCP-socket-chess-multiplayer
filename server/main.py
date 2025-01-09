@@ -259,6 +259,14 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             print(f"PROMOTE TO {piece}")
                             match.chess.currBoard[endRow][endCol] = piece
                             #return
+                            notation = match.coordsToAlgebraic(endRow, endCol)
+                            pieceNotation = {2: 'R', 3: 'N', 4: 'B', 5: 'Q'}
+                            notation += pieceNotation[abs(piece)]
+
+                            if match.chess.isCheck(match.chess.isWhiteToMove):
+                                notation += "+"
+                            if match.chess.isMate():
+                                notation += "#"
 
                             board1 = match.chessBoard
                             board2 = match.chessBoard
@@ -270,18 +278,24 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC1, "#BOARD", board1)
                                 send_response(match.socketC1, "#INFO", "Poteza uspešno narejena.")
+                                send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
+
                                 if match.socketC2 is not None:
                                     send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC2, "#BOARD", board2)
                                     send_response(match.socketC2, "#INFO", "Nasprotnik je naredil potezo.")
+                                    send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                             elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
                                 send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                 send_response(match.socketC2, "#BOARD", board2)
                                 send_response(match.socketC2, "#INFO", "Poteza uspešno narejena.")
+                                send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
+
                                 if match.socketC1 is not None:
                                     send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
+                                    send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                             print(f"Legalne poteze poslane igralcu {unique_id}")
                             send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")

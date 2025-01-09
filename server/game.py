@@ -112,7 +112,7 @@ class Game:
             return 2
         return None
 
-    def _coordsToAlgebraic(self, row, col):
+    def coordsToAlgebraic(self, row, col):
         files = 'abcdefgh'
         ranks = '87654321'
         return f"{files[col]}{ranks[row]}"
@@ -143,9 +143,9 @@ class Game:
                 legalMoves = self.chess.getLegalMoves(p[0], p[1])
                 if legalMoves[newRow][newCol] != 0:
                     if p[0] == oldRow:
-                        needCol = self._coordsToAlgebraic(oldRow, oldCol)[0]
+                        needCol = self.coordsToAlgebraic(oldRow, oldCol)[0]
                     if p[1] == oldCol:
-                        needRow = self._coordsToAlgebraic(oldRow, oldCol)[1]
+                        needRow = self.coordsToAlgebraic(oldRow, oldCol)[1]
             print (f"Potrebujemo {needRow} {needCol}")
             return needRow + needCol
         except Exception as e:
@@ -171,8 +171,8 @@ class Game:
             
             if abs(piece) == 1:
                 if capture:
-                    move += self._coordsToAlgebraic(oldRow, oldCol)[0] + 'x'
-                move += self._coordsToAlgebraic(newRow, newCol)
+                    move += self.coordsToAlgebraic(oldRow, oldCol)[0] + 'x'
+                move += self.coordsToAlgebraic(newRow, newCol)
             else:
                 move += pieceNotation[abs(piece)]
                 dodatek = self.isAmbiguousMove(oldRow, oldCol, newRow, newCol)
@@ -181,7 +181,7 @@ class Game:
                 
                 if capture:
                     move += 'x'
-                move += self._coordsToAlgebraic(newRow, newCol)
+                move += self.coordsToAlgebraic(newRow, newCol)
         
 
             return self.addMoveNumber(move)

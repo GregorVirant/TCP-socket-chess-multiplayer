@@ -144,7 +144,6 @@ def play(gui):
 
         gui.lastMoveStart = sendingAndReciving.lastMoveStart
         gui.lastMoveEnd = sendingAndReciving.lastMoveEnd
-        gui.wasLastMoveMine = sendingAndReciving.wasLastMoveMine
         gui.draw(board,legalMoves)
         
 

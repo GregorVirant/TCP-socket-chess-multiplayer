@@ -327,45 +327,13 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 notation = match.generateMoveNotation(int(startRow), int(startCol), int(endRow), int(endCol))
                                 moveMade = match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
                                 print(f"MOVE MADE: {moveMade}")
-                                if moveMade == False:
-                                    send_response(conn, "#ERROR", "Neveljavna poteza.")
-                                    return
-                                elif moveMade == "DTFR":
-                                    send_response(match.socketC1, "#END", "Draw due to three-fold repetition")
-                                    send_response(match.socketC2, "#END", "Draw due to three-fold repetition")
-                                    match.isRunning = False
-                                elif moveMade == "W":
-                                    print("White has won by checkmate")
-                                    send_response(match.socketC1, "#END", "White has won by checkmate")
-                                    send_response(match.socketC2, "#END", "White has won by checkmate")
-                                    match.isRunning = False
-                                elif moveMade == "B":
-                                    print("Black has won by checkmate")
-                                    send_response(match.socketC1, "#END", "Black has won by checkmate")
-                                    send_response(match.socketC2, "#END", "Black has won by checkmate")
-                                    match.isRunning = False
-                                elif moveMade == "D50":
-                                    print("Draw due to 50 move rule")
-                                    send_response(match.socketC1, "#END", "Draw due to 50 move rule")
-                                    send_response(match.socketC2, "#END", "Draw due to 50 move rule")
-                                    match.isRunning = False
-                                elif moveMade == "DS":
-                                    print("Draw due to stalemate")
-                                    send_response(match.socketC1, "#END", "Draw due to stalemate")
-                                    send_response(match.socketC2, "#END", "Draw due to stalemate")
-                                    match.isRunning = False
 
-                                elif moveMade == "DIM":
-                                    print("Draw due to insufficient material")
-                                    send_response(match.socketC1, "#END", "Draw due to insufficient material")
-                                    send_response(match.socketC2, "#END", "Draw due to insufficient material")
-                                    match.isRunning = False
-                                
-
-                                if match.chess.isMate():
+                                if moveMade in ("W", "B"):
                                     notation += "#"
                                 elif match.chess.isCheck(match.chess.isWhiteToMove):
                                     notation += "+"
+                                else:
+                                    print("NOT CHECKMATE")
 
                                 
                                 match.moves.append(notation)
@@ -409,6 +377,39 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 print(f"Legalne poteze poslane igralcu {unique_id}")
                                 send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                                 send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
+
+                                if moveMade == False:
+                                    send_response(conn, "#ERROR", "Neveljavna poteza.")
+                                    return
+                                elif moveMade == "DTFR":
+                                    send_response(match.socketC1, "#END", "Draw due to three-fold repetition")
+                                    send_response(match.socketC2, "#END", "Draw due to three-fold repetition")
+                                    match.isRunning = False
+                                elif moveMade == "W":
+                                    print("White has won by checkmate")
+                                    send_response(match.socketC1, "#END", "White has won by checkmate")
+                                    send_response(match.socketC2, "#END", "White has won by checkmate")
+                                    match.isRunning = False
+                                elif moveMade == "B":
+                                    print("Black has won by checkmate")
+                                    send_response(match.socketC1, "#END", "Black has won by checkmate")
+                                    send_response(match.socketC2, "#END", "Black has won by checkmate")
+                                    match.isRunning = False
+                                elif moveMade == "D50":
+                                    print("Draw due to 50 move rule")
+                                    send_response(match.socketC1, "#END", "Draw due to 50 move rule")
+                                    send_response(match.socketC2, "#END", "Draw due to 50 move rule")
+                                    match.isRunning = False
+                                elif moveMade == "DS":
+                                    print("Draw due to stalemate")
+                                    send_response(match.socketC1, "#END", "Draw due to stalemate")
+                                    send_response(match.socketC2, "#END", "Draw due to stalemate")
+                                    match.isRunning = False
+                                elif moveMade == "DIM":
+                                    print("Draw due to insufficient material")
+                                    send_response(match.socketC1, "#END", "Draw due to insufficient material")
+                                    send_response(match.socketC2, "#END", "Draw due to insufficient material")
+                                    match.isRunning = False
                             else:
                                 send_response(conn, "#ERROR", "Neveljavna poteza.")
                     else:

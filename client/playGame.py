@@ -34,7 +34,7 @@ def surre():
 
 SHOW_ENUMERATION = False # variable that tells if the enumeration on board should be shown
 
-is_enumerated = False
+is_enumerated = True
 
 def enumerateBoard():
     global is_enumerated
@@ -156,7 +156,7 @@ def play(gui):
                 selectedPosition = None
         
         if is_enumerated:
-            board_orientation_white = sendingAndReciving.isWhiteTurn
+            board_orientation_white = sendingAndReciving.amIWhite
             turn = 1 - 2 * (not board_orientation_white)
 
             for i in range(8):

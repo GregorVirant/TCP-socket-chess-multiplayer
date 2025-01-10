@@ -317,3 +317,8 @@ class Gui:
         #self.scaledScreen.blit(self.board,(0,0))
         self.scaledScreen.blit(pygame.transform.scale(self.board, (self.displayWidth,self.displayHeight)),(0,0))
         pygame.display.flip()
+
+    def getTextSize(self, text, fontSize):
+        font = pygame.font.Font(None, fontSize)
+        text = font.render(text, True, colors.BLACK)
+        return text.get_width()

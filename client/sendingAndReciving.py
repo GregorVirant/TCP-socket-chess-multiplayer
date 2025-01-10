@@ -97,9 +97,9 @@ def listen_to_server(client, tmp):
 def handle_server_response(protocol, message):
     global current_game_code, board, legalMoves, isWhiteTurn, Time, timerStarted, amIWhite, timerThread, gameStarted, isThereNoErrors, lastMoveStart, lastMoveEnd, wasLastMoveMine, promoting,promotion_message,game_end_message,game_ended
 
-    print(f"Prejeto: {protocol} - {message}")
+    #print(f"Prejeto: {protocol} - {message}")
     if protocol == "#INFO":
-        print(f"INFO: {message}")
+        #print(f"INFO: {message}")
         if "Igra je bila ustvarjena" in message:
             current_game_code = message.split("Koda igre: ")[1]
     elif protocol == "#ERROR":
@@ -138,7 +138,6 @@ def handle_server_response(protocol, message):
         for i in range(8):
             for j in range(8):
                 board[i][j] = board2[i][j]
-        print(f"BOARD: {board}")
     elif protocol == "#TURN":
         if message == "True":
             isWhiteTurn = True
@@ -157,35 +156,28 @@ def handle_server_response(protocol, message):
         if timerThread:
             timerThread.join()
         Time = "10:0:0 - 10:0:0"
-        if message == "Surrender":
-            print("SURRENDER")
-        elif message == "White wins":
-            print("WHITE WINS")
-        elif message == "Black wins":
-            print("BLACK WINS")
-        elif message == "Draw":
-            print("DRAW")
+        print(message)
     
     elif protocol == "#LEGALMOVES":
         legalMoves2 = ast.literal_eval(message)
         for i in range(8):
             for j in range(8):
                 legalMoves[i][j] = legalMoves2[i][j]
-        print(f"LEGALMOVES: {legalMoves}")
+        #print(f"LEGALMOVES: {legalMoves}")
     elif protocol == "#TIME":
         if amIWhite:
             myTime, enemyTime = message.split(":")
         else:
             enemyTime, myTime = message.split(":")
         Time = f"{toMinutesAndSeconds(myTime)} - {toMinutesAndSeconds(enemyTime)}"
-        print(Time)
+        #print(Time)
         if not timerStarted:
             timerStarted = True
             timerThread = threading.Thread(target=start_timer, daemon=True)
             timerThread.start()
     
     elif protocol == "#MOVEMADE":
-        print(f"MOVEMADE: {message}")
+        #print(f"MOVEMADE: {message}")
         oldRow, oldCol, newRow, newCol = map(int, message.split(":"))
         if not amIWhite:
             oldRow = 7 - oldRow

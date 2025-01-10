@@ -93,7 +93,8 @@ def play(gui):
             print(gui.state)
             print("GAME END:  ",sendingAndReciving.game_end_message)
             gui.state = GAME_END
-            gui.addText(sendingAndReciving.game_end_message,coordinates=(150,390),fontSize=80,color=colors.BLACK,bold=True)
+            textWidth = gui.getTextSize(sendingAndReciving.game_end_message,80)
+            gui.addText(sendingAndReciving.game_end_message,coordinates=(gui.displayWidth/2-(textWidth/2),390),fontSize=80,color=colors.BLACK,bold=True)
             gui.draw()
 
             while not end_back_button:

@@ -38,10 +38,7 @@ def waitForGameCodeResponse():
             return
         sleep(0.1)
 
-def getTextSize(text, fontSize):
-    font = pygame.font.Font(None, fontSize)
-    text = font.render(text, True, colors.BLACK)
-    return text.get_width()
+
 
 def createGame():
     global uniqueIDRequiered, gameCodeRequiered, errorText
@@ -103,7 +100,7 @@ while run:
     run=not gui.shouldQuit()
     gui.mouseClickedUpdate()     
     clicked = gui.buttonAndTextFieldCalculations()
-    errorTextSize = getTextSize(errorText,40)
+    errorTextSize = gui.getTextSize(errorText,40)
     gui.addText(errorText,(450-(errorTextSize/2),350),40,color=colors.RED,bold=True)
 
     if uniqueIDRequiered:

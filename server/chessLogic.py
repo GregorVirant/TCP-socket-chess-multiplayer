@@ -136,16 +136,15 @@ class ChessBoard:
         if not self.makeMove1(originSquare, newSquare):
             return False
         if not self.storePosition(self.currBoard):
-            print("Draw due to three-fold repetition")
-            return "Draw due to three-fold repetition"
+            return "DTFR"  # Draw due to three-fold repetition
         if self.isMate():
-            print("White has won" if not self.isWhiteToMove else "Black has won")
-            return "White has won" if not self.isWhiteToMove else "Black has won"
-        elif self._isDraw():
+            print("Mate")
+            return "W" if not self.isWhiteToMove else "B"
+        draw_result = self.isDraw()
+        if draw_result is not False:
             self.result = 0
-            return "Draw"
+            return draw_result  # Return the specific draw result
         return True
-
 
 
     def makeMove1(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
@@ -498,16 +497,16 @@ class ChessBoard:
         self.result = factor
         
         return True
-    def _isDraw(self):
+    def isDraw(self):
         if(self._isStalemate50MoveRule()):
             print("Draw due to 50 move rule")
-            return True
+            return "D50"
         elif(self._isStalemate()):
             print("Draw due to stalemate")
-            return True
+            return "DS"
         elif self._isDrawDueToInsuficientMaterial():
             print("Draw due to insuficient material")
-        
+            return "DIM"
         return False
 
     def _isStalemate(self):

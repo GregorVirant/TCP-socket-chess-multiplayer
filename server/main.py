@@ -259,14 +259,10 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             print(f"PROMOTE TO {piece}")
                             match.chess.currBoard[endRow][endCol] = piece
                             #return
-                            notation = match.coordsToAlgebraic(endRow, endCol)
                             pieceNotation = {2: 'R', 3: 'N', 4: 'B', 5: 'Q'}
-                            notation += pieceNotation[abs(piece)]
+                            
+                            notation = "=" + pieceNotation[abs(piece)]
 
-                            if match.chess.isCheck(match.chess.isWhiteToMove):
-                                notation += "+"
-                            if match.chess.isMate():
-                                notation += "#"
 
                             board1 = match.chessBoard
                             board2 = match.chessBoard
@@ -279,7 +275,6 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 send_response(match.socketC1, "#BOARD", board1)
                                 send_response(match.socketC1, "#INFO", "Poteza uspešno narejena.")
                                 send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
-
                                 if match.socketC2 is not None:
                                     send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC2, "#BOARD", board2)
@@ -290,12 +285,25 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 send_response(match.socketC2, "#BOARD", board2)
                                 send_response(match.socketC2, "#INFO", "Poteza uspešno narejena.")
                                 send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
-
                                 if match.socketC1 is not None:
                                     send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
                                     send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
+                            if match.chess.isMate():
+                                notation += "#"
+                                if match.isWhiteTurn:
+                                    send_response(match.socketC1, "#END", "Black has won by checkmate")
+                                    send_response(match.socketC2, "#END", "Black has won by checkmate")
+                                else:
+                                    send_response(match.socketC1, "#END", "White has won by checkmate")
+                                    send_response(match.socketC2, "#END", "White has won by checkmate")
+                            elif match.chess.isCheck(match.chess.isWhiteToMove):
+                                notation += "+"
+                            
+
+                            match.moves[-1] += notation
+                            match.saveToFile()
                             print(f"Legalne poteze poslane igralcu {unique_id}")
                             send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
@@ -318,21 +326,56 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             if legalMoves[int(endRow)][int(endCol)] in (2, 3):
                                 notation = match.generateMoveNotation(int(startRow), int(startCol), int(endRow), int(endCol))
                                 moveMade = match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
+                                print(f"MOVE MADE: {moveMade}")
                                 if moveMade == False:
                                     send_response(conn, "#ERROR", "Neveljavna poteza.")
                                     return
-                                if match.chess.isCheck(match.chess.isWhiteToMove):
-                                    notation += "+"
+                                elif moveMade == "DTFR":
+                                    send_response(match.socketC1, "#END", "Draw due to three-fold repetition")
+                                    send_response(match.socketC2, "#END", "Draw due to three-fold repetition")
+                                    match.isRunning = False
+                                elif moveMade == "W":
+                                    print("White has won by checkmate")
+                                    send_response(match.socketC1, "#END", "White has won by checkmate")
+                                    send_response(match.socketC2, "#END", "White has won by checkmate")
+                                    match.isRunning = False
+                                elif moveMade == "B":
+                                    print("Black has won by checkmate")
+                                    send_response(match.socketC1, "#END", "Black has won by checkmate")
+                                    send_response(match.socketC2, "#END", "Black has won by checkmate")
+                                    match.isRunning = False
+                                elif moveMade == "D50":
+                                    print("Draw due to 50 move rule")
+                                    send_response(match.socketC1, "#END", "Draw due to 50 move rule")
+                                    send_response(match.socketC2, "#END", "Draw due to 50 move rule")
+                                    match.isRunning = False
+                                elif moveMade == "DS":
+                                    print("Draw due to stalemate")
+                                    send_response(match.socketC1, "#END", "Draw due to stalemate")
+                                    send_response(match.socketC2, "#END", "Draw due to stalemate")
+                                    match.isRunning = False
+
+                                elif moveMade == "DIM":
+                                    print("Draw due to insufficient material")
+                                    send_response(match.socketC1, "#END", "Draw due to insufficient material")
+                                    send_response(match.socketC2, "#END", "Draw due to insufficient material")
+                                    match.isRunning = False
+                                
+
                                 if match.chess.isMate():
-                                  notation += "#"
+                                    notation += "#"
+                                elif match.chess.isCheck(match.chess.isWhiteToMove):
+                                    notation += "+"
 
                                 
+                                match.moves.append(notation)
+
                                 if match.chess.promoting:                
                                     send_response(conn, "#PROMO",message)
                                     return
                                 
-                                match.moves.append(notation)
                                 match.saveToFile()
+
                                 print(notation)
                                 print("BOARD:" + str(match.chessBoard))
                                 print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
@@ -385,9 +428,11 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                         if match.uniqueCodeC1 == unique_id:
                             send_response(match.socketC2, "#END", "Nasprotnik se je predal.")
                             send_response(match.socketC1, "#END", "Predali ste se.")
+                            match.isRunning = False
                         elif match.uniqueCodeC2 == unique_id:
                             send_response(match.socketC1, "#END", "Nasprotnik se je predal.")
                             send_response(match.socketC2, "#END", "Predali ste se.")
+                            match.isRunning = False
 
                         # match.resetGame()
                         # if match.whoIsWhite == 1:
@@ -454,13 +499,16 @@ def checkIfNoTime(gameid):
                 if isNoTime == "B":
                     send_response(match.socketC1, "#END", "Nasprotniku je zmanjkalo časa.")
                     send_response(match.socketC2, "#END", "Čas vam je potekel.")
+                    match.isRunning = False
                     break
                 elif isNoTime == "W":
                     send_response(match.socketC1, "#END", "Čas vam je potekel.")
                     send_response(match.socketC2, "#END", "Nasprotniku je zmanjkalo časa.")
+                    match.isRunning = False
                     break
                 sleep(1)
     return None
+
     
 
 if __name__ == "__main__":

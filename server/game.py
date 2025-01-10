@@ -61,7 +61,7 @@ class Game:
         self._updateTime()
         self.isWhiteTurn = not self.isWhiteTurn
         self.turnNumber += 1
-        return True
+        return moveMade
         
     def isAlreadyInGame(self,uniqueCode,socket): #ce je bil disconectan pa se na novo joina
         #ce je uniqueCode enak uniqueCodeC1 al uniqueCodeC2
@@ -190,6 +190,7 @@ class Game:
             return None
         
     def isDuplicateId(self,unique_id):
+
         if (self.uniqueCodeC1 == unique_id and self.socketC1 is not None) or (self.uniqueCodeC2 == unique_id and self.socketC2 is not None):
             return True
         return False
@@ -246,5 +247,6 @@ class Game:
             else:
                 return "B"
         return False
+    
         
 

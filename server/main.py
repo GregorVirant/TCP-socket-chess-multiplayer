@@ -67,7 +67,6 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
             createdMatch = game.Game(game_code, conn, message)  # message contains uniqueID
             games.append(createdMatch)
             send_response(conn, "#GAMEID", game_code)
-            sleep(1)
             tempBoard = createdMatch.chessBoard
             if createdMatch.whoIsWhite == 2:
                 tempBoard = createdMatch.flipBoard()
@@ -99,8 +98,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
 
                             print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
-                           
-                            sleep(1)
+                            send_response(conn,"#GSTART","")
                             
                             tempBoard = match.chessBoard
                             match.updateBoard()
@@ -115,7 +113,6 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             match.addPlayer2(conn, unique_id)
                             print(f"Igralec {unique_id} se je pridružil igri {game_code}")
                             send_response(conn, "#INFO", f"Pridružili ste se igri {game_code}")
-                            sleep(1)
                             tempBoard = match.chessBoard
                             if match.whoIsWhite == 1:
                                 tempBoard = match.flipBoard()

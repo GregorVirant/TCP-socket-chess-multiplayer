@@ -175,7 +175,9 @@ def play(gui):
         
 
 
-    gui.startMenu()
     gui.state = MENU
+    sendingAndReciving.gameStarted = False
+    gui.lastMoveStart = (-1,-1)
+    gui.lastMoveEnd = (-1,-1)
     run = True
     closeConnection()

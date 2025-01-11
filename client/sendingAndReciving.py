@@ -35,7 +35,6 @@ timerThread = None
 
 lastMoveStart = (-1,-1)
 lastMoveEnd = (-1,-1)
-wasLastMoveMine = False
 
 def startSocket(board1, legalMoves1):
     global clientSocket, board, legalMoves, amIWhite, isWhiteTurn

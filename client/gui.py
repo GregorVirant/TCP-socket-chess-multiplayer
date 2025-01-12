@@ -31,6 +31,7 @@ class Gui:
         icon = pygame.image.load("textures/icon.png")
         pygame.display.set_icon(icon)
 
+        self.background = pygame.image.load("textures/b1.png").convert()
 
         self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)
 
@@ -270,7 +271,8 @@ class Gui:
         pygame.display.flip()        
 
     def drawMenu(self):
-        self.menu.fill(colors.PURPLE)
+        #self.menu.fill(colors.PURPLE)
+        self.menu.blit(pygame.transform.scale(self.background,(800+2*self.borderWidth,800+2*self.borderWidth)),(0,0))
         for i, textImage in enumerate(self.textImages[self.state]):
             self.menu.blit(textImage,self.textImagesCoordinates[self.state][i])
         self.textImages[self.state].clear()

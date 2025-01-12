@@ -8,14 +8,19 @@ PICK_FIGURE = 2
 GAME_END = 3
 
 class Gui: 
-    def __init__(self,scale):
+    def __init__(self):
         pygame.init()
         self.state = MENU
 
-        self.scale = scale
+        display_info = pygame.display.Info()
+        display_width = display_info.current_w
+        display_height = display_info.current_h
+
         self.borderWidth=100
-        self.displayWidth=(800+2*self.borderWidth)*scale
-        self.displayHeight=(800+2*self.borderWidth)*scale
+        self.scale = (min(display_width,display_height)/(800+self.borderWidth*2))*0.8
+        
+        self.displayWidth=(800+2*self.borderWidth)*self.scale
+        self.displayHeight=(800+2*self.borderWidth)*self.scale
         
         self.borderColor=(255,255,0)
         

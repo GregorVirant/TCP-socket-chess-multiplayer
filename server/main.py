@@ -268,22 +268,22 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             else:
                                 board1 = match.flipBoard()
                             if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
-                                send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
+                                send_response(match.socketC1, "#TURN", str(not match.isWhiteTurn))
                                 send_response(match.socketC1, "#BOARD", board1)
                                 send_response(match.socketC1, "#INFO", "Poteza uspešno narejena.")
                                 send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                                 if match.socketC2 is not None:
-                                    send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
+                                    send_response(match.socketC2, "#TURN", str(not match.isWhiteTurn))
                                     send_response(match.socketC2, "#BOARD", board2)
                                     send_response(match.socketC2, "#INFO", "Nasprotnik je naredil potezo.")
                                     send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                             elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
-                                send_response(match.socketC2, "#TURN", str(match.isWhiteTurn))
+                                send_response(match.socketC2, "#TURN", str(not match.isWhiteTurn))
                                 send_response(match.socketC2, "#BOARD", board2)
                                 send_response(match.socketC2, "#INFO", "Poteza uspešno narejena.")
                                 send_response(match.socketC2, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
                                 if match.socketC1 is not None:
-                                    send_response(match.socketC1, "#TURN", str(match.isWhiteTurn))
+                                    send_response(match.socketC1, "#TURN", str(not match.isWhiteTurn))
                                     send_response(match.socketC1, "#BOARD", board1)
                                     send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
                                     send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")

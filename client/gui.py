@@ -21,6 +21,12 @@ class Gui:
         
         self.scaledScreen = pygame.display.set_mode([self.displayWidth,self.displayHeight])  
 
+        #TITLE AND ICON
+        pygame.display.set_caption("Chess")
+        icon = pygame.image.load("textures/icon.png")
+        pygame.display.set_icon(icon)
+
+
         self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)
 
         self.board = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)

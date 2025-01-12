@@ -15,7 +15,7 @@ clientSocket = None
 board = None
 legalMoves = None
 isWhiteTurn = True
-amIWhite = None
+amIWhite = True
 Time = "10:0:0 - 10:0:0"
 timerStarted = False
 

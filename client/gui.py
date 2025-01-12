@@ -49,6 +49,9 @@ class Gui:
 
         self.lastMoveStart = (-1,-1)
         self.lastMoveEnd = (-1,-1)
+
+        self.whoseTurn = 0
+        self.whoseMoveScale = 0.1
         
     def loadNextTexture(self):
         if self.texture >= len(self.textures):
@@ -278,8 +281,11 @@ class Gui:
 
     def drawGame(self,board,colorMatrix):
         self.board.fill(colors.LIGHT_BLUE)
+        if self.whoseTurn == 1:
+            pygame.draw.rect(self.board,colors.LIGHT_YELLOW,(self.borderWidth*(1-self.whoseMoveScale),400+self.borderWidth,800+(self.borderWidth*self.whoseMoveScale*2),400+(self.borderWidth*self.whoseMoveScale)))
+        if self.whoseTurn == -1:
+            pygame.draw.rect(self.board,colors.CYAN,(self.borderWidth*(1-self.whoseMoveScale),self.borderWidth*(1-self.whoseMoveScale),800+(self.borderWidth*self.whoseMoveScale*2),400+(self.borderWidth*self.whoseMoveScale)))
         pygame.draw.rect(self.board,colors.LIGHT_PURPLE,(self.borderWidth,self.borderWidth,800,800))
-        
         for i in range(8):
             for j in range(8):
                 if (i % 2 == 1 and j % 2 == 0) or (j % 2 == 1 and i % 2 == 0):

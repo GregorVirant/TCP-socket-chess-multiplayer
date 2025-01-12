@@ -171,6 +171,13 @@ def play(gui):
 
         gui.lastMoveStart = sendingAndReciving.lastMoveStart
         gui.lastMoveEnd = sendingAndReciving.lastMoveEnd
+        
+        whoseTurn = 0
+        if (sendingAndReciving.amIWhite and sendingAndReciving.isWhiteTurn) or ((not sendingAndReciving.amIWhite) and (not sendingAndReciving.isWhiteTurn)):
+            whoseTurn = 1
+        else:
+            whoseTurn = -1
+        gui.whoseTurn = whoseTurn
         gui.draw(board,legalMoves)
         
 
@@ -179,5 +186,8 @@ def play(gui):
     sendingAndReciving.gameStarted = False
     gui.lastMoveStart = (-1,-1)
     gui.lastMoveEnd = (-1,-1)
+    sendingAndReciving.lastMoveStart = (-1,-1)
+    sendingAndReciving.lastMoveEnd = (-1,-1)
+    gui.whoseTurn = 0
     run = True
     closeConnection()

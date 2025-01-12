@@ -21,7 +21,7 @@ legalMoves=[[0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0]]
 
-gui=Gui(1) #class for displaying the game and taking user input   (game scale)
+gui=Gui() #class for displaying the game and taking user input
 run = True
 
 def back():
@@ -171,7 +171,7 @@ def play(gui):
 
         gui.lastMoveStart = sendingAndReciving.lastMoveStart
         gui.lastMoveEnd = sendingAndReciving.lastMoveEnd
-        
+
         whoseTurn = 0
         if (sendingAndReciving.amIWhite and sendingAndReciving.isWhiteTurn) or ((not sendingAndReciving.amIWhite) and (not sendingAndReciving.isWhiteTurn)):
             whoseTurn = 1

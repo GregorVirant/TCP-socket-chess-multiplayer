@@ -84,15 +84,15 @@ def joinGame():
     
     Thread(target=waitForGameCodeResponse).start()
     
-gui.addText("Šah",(350,230),150,bold=True,isPermanent=True)
-gui.addText("Unique ID",(385,570),40,bold=True,isPermanent=True)
-gui.addTextField(5,410,610,bold=True,onlyNumbers=True)
+#gui.addText("Šah",(350,230),150,bold=True,isPermanent=True)
+gui.addText("Unique ID",(335+gui.borderWidth,600),40,bold=True,isPermanent=True)
+gui.addTextField(5,360+gui.borderWidth,640,bold=True,onlyNumbers=True)
 
-gui.addText("Game Code",(370,650),40,bold=True,isPermanent=True)
-gui.addTextField(5,410,690,bold=True)
+gui.addText("Game Code",(320+gui.borderWidth,680),40,bold=True,isPermanent=True)
+gui.addTextField(5,360+gui.borderWidth,720,bold=True)
 
-gui.addButton("Create",createGame,(350,390),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton("Join",joinGame,(350,480),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Create",createGame,(300+gui.borderWidth,420),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
+gui.addButton("Join",joinGame,(300+gui.borderWidth,510),(200,60),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.RED,borderRadius=5,fontSize=18,bold=True,font="arial")
 
 run = True
 while run:

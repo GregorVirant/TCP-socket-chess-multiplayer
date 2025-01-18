@@ -45,6 +45,9 @@ class ChessBoard:
         self.halfMoves = halfMoves
 
     def getBoard(self):
+        """
+        deluje!
+        """
         return self.currBoard
     
     def getStartBoard(self):

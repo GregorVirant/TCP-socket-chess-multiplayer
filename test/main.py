@@ -45,6 +45,7 @@ game.addButton("Join",join,(230,861),(70,28),buttonColor=colors.LIGHT_PURPLE,hov
 chessBoard = ChessBoard(0)
 while run:
         #can add fps limit
+        help(chessBoard.getBoard)
         game.loadEvents()
         run=not game.shouldQuit()
         #Should run on every cycle

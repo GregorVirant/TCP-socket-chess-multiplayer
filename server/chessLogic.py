@@ -26,7 +26,7 @@ class ChessBoard:
         self.halfMoves = (0,0) #polpoteze od zadnjega ujetja ali premika kmeta
         self.boardSize=8
 
-        self.promoting= False;
+        self.promoting= False
         
         self.result = None
         self.previousPositions = {}
@@ -54,6 +54,17 @@ class ChessBoard:
         return self.startBoard
     
     def _isCastlingLegal(self, king_start, rook_start, king_end):
+            """
+            Functionality:
+            - checks wheter castling is legal
+            Parameters :
+            - king start : touple with starting king coordinates
+            - rook_start : touple with ending rook coordinates
+            - king_end   : touple with ending king coordinates
+            Returns : 
+            - bool : teling if it is legal to make the castle
+            """
+
             # Preveri, če se kralj ali trdnjava še nista premaknila
             if self.isWhiteToMove:
                 if king_start[1] == 4 and rook_start[1] == 7 and not self.castlingOptions[0]: #K
@@ -117,6 +128,16 @@ class ChessBoard:
                         legalMoves[rowT][columnT] = 0
 
     def getLegalMoves(self, row, column, checkForCheck = True, checkIfCastlingLegal = True):
+        """
+        Functionality:
+        - returns the matrix of the legal moves and takes for a piece
+        Inputs:
+        - row, column: integers with the coordinates of the piece in question
+        - checkForChecks: optional boolean argument that checks for possible checks that would stop some move
+        - checkIfCastlingLegal: optional boolean argument that checks for legality of castling
+        Outputs:
+        - list of lists of integers serving as a matrix with legal moves
+        """
         legalMoves = self._getEmptyBoard()
         if not self.result is None:
             return legalMoves
@@ -133,6 +154,15 @@ class ChessBoard:
         return legalMoves
 
     def makeMove(self, originSquare, newSquare):
+        """
+        Functionality:
+        - makes a move on the board if it is legal
+        Inputs:
+        - originSquare: touple with original square positioning
+        - newSquare: touple with the end square
+        Outputs:
+        - boolean value with legality of the move
+        """
         if not self.makeMove1(originSquare, newSquare):
             return False
         if not self.storePosition(self.currBoard):
@@ -148,6 +178,17 @@ class ChessBoard:
 
 
     def makeMove1(self, originSquare, newSquare): #originSquare and newSquare sta toupla ki vsebujeta koordinati x in y
+
+        """
+        Functionality:
+        - makes a move on the board if it is legal, but does not check for mate or draw
+        Inputs:
+        - originSquare: touple with original square positioning
+        - newSquare: touple with the end square
+        Outputs:
+        - boolean value with legality of the move
+        """
+
         if not self.result is None:
             return False
         legalMoves =  self.getLegalMoves(originSquare[0], originSquare[1])
@@ -337,6 +378,14 @@ class ChessBoard:
         return False
     
     def isCheck(self, isWhite):
+        """
+        Functionality: 
+        - checks if some player is in check
+        Inputs:
+    	- isWhite: a boolean that tells if the side you are looking at
+        Outputs:
+        - boolean that tells wheter the chosen player is in check if it's their move
+        """
         for i in range(self.boardSize):
             for j in range(self.boardSize):
                 piece = self.currBoard[i][j]

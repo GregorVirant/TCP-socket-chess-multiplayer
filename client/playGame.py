@@ -107,7 +107,7 @@ def play(gui):
             print("GAME END:  ",sendingAndReciving.game_end_message)
             gui.state = GAME_END
             textWidth = gui.getTextSize(sendingAndReciving.game_end_message,80)
-            gui.addText(sendingAndReciving.game_end_message,coordinates=(gui.displayWidth/2-(textWidth/2),390),fontSize=80,color=colors.BLACK,bold=True)
+            gui.addText(sendingAndReciving.game_end_message,coordinates=(1000 /2-(textWidth/2),390),fontSize=80,color=colors.BLACK,bold=True)
             gui.draw()
 
             while not end_back_button:
@@ -123,9 +123,9 @@ def play(gui):
             run = False
         if not sendingAndReciving.gameStarted:
             #print("Waiting for game to start")
-            gui.addText("WAITING FOR",coordinates=(175,300),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText("OPPONENT",coordinates=(175,390),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
+            gui.addText("WAITING FOR",coordinates=((1000-gui.getTextSize("WAITING FOR", 115))/2,300),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText("OPPONENT",coordinates=((1000 - gui.getTextSize("OPPONENT", 115))/2,390),fontSize=115,color=colors.BLACK,bold=True)
+            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=((1000 - gui.getTextSize(f"Code:  {sendingAndReciving.current_game_code.upper()}", 110))/2,480),fontSize=110,color=colors.BLACK,bold=True)
             gui.draw(board,legalMoves)
             continue
 

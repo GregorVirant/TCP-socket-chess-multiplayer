@@ -64,7 +64,10 @@ class Gui:
 
         self.whoseTurn = 0
         self.whoseMoveScale = 0.1
-        
+    
+    def getBorderWidth(self):
+        return self.borderWidth
+
     def loadNextTexture(self):
         if self.texture >= len(self.textures):
             self.texture = 0

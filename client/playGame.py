@@ -40,6 +40,19 @@ def enumerateBoard():
     global is_enumerated
     is_enumerated = not is_enumerated
 
+def caculateBoardValue(board):
+    values = {0:0,1:1, 2:5, 3:3, 4:3, 5:9, 6:9}
+    sum = 0
+    for row in board:
+        for piece in row:
+            if piece > 0:
+                sum += values[piece]
+            else:
+                sum -= values[abs(piece)]
+    if sum > 0:
+        return f"+{sum}"
+    return f"{sum}"
+
 end_back_button = False
 def setEndBackButton():
     global end_back_button
@@ -48,7 +61,7 @@ def setEndBackButton():
 gui.state = GAME
 gui.addButton("Back",back,(630+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
 gui.addButton("Surrender",surre,(400+50,860+100),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=18,bold=True,font="arial")
-gui.addButton("Oštevilči",enumerateBoard,(400+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
+gui.addButton("Enumerate",enumerateBoard,(400+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 gui.addButton("Change texture",gui.loadNextTexture,(630+50,5),(220,30),buttonColor=colors.LIGHT_PURPLE,hoverColor=colors.PURPLE,borderRadius=5,fontSize=24,bold=True,font="arial")
 
 
@@ -114,7 +127,7 @@ def play(gui):
             gui.addText("OPPONENT",coordinates=(175,390),fontSize=115,color=colors.BLACK,bold=True)
             gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=(175,480),fontSize=110,color=colors.BLACK,bold=True)
             gui.draw(board,legalMoves)
-            continue;
+            continue
 
         if sendingAndReciving.promoting:
             #piece = pickFigure(gui)
@@ -137,6 +150,12 @@ def play(gui):
                     gui.state = GAME
                     gui.draw()
                     break
+        
+
+        
+            
+            
+
 
         if not clicked and gui.mouseClickedOnBoard():
             column, row = gui.mouseGetBoardPosition()
@@ -167,6 +186,7 @@ def play(gui):
 
         gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText(text=f"material balance: {caculateBoardValue(board)}", coordinates=(570, 50))
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
 
         gui.lastMoveStart = sendingAndReciving.lastMoveStart

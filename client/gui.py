@@ -1,6 +1,8 @@
 import pygame
 import colors
 from button import *
+import os
+import sys
 
 MENU = 0
 GAME = 1
@@ -28,10 +30,10 @@ class Gui:
 
         #TITLE AND ICON
         pygame.display.set_caption("Chess")
-        icon = pygame.image.load("textures/icon.png")
+        icon = pygame.image.load(resource_path("textures/icon.png"))
         pygame.display.set_icon(icon)
 
-        self.background = pygame.image.load("textures/b1.png").convert()
+        self.background = pygame.image.load(resource_path("textures/b1.png")).convert()
 
         self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)
 
@@ -79,8 +81,8 @@ class Gui:
         self.texturesBlack = []
         pieces=["Pawn","Rook","Knight","Bishop","Queen","King"]
         for piece in pieces:
-            self.texturesWhite.append(pygame.image.load(f"textures/{folder}/white{piece}.png").convert_alpha())
-            self.texturesBlack.append(pygame.image.load(f"textures/{folder}/black{piece}.png").convert_alpha())
+            self.texturesWhite.append(pygame.image.load(resource_path(f"textures/{folder}/white{piece}.png")).convert_alpha())
+            self.texturesBlack.append(pygame.image.load(resource_path(f"textures/{folder}/black{piece}.png")).convert_alpha())
             # self.texturesWhite.append(pygame.transform.scale(pygame.image.load(f"textures/pieces/white{piece}.png").convert_alpha(),(100,100)))
             # self.texturesBlack.append(pygame.transform.scale(pygame.image.load(f"textures/pieces/black{piece}.png").convert_alpha(),(100,100)))
 
@@ -344,3 +346,15 @@ class Gui:
         font = pygame.font.Font(None, fontSize)
         text = font.render(text, True, colors.BLACK)
         return text.get_width()
+    
+
+def resource_path(relative_path):
+    """Get absolute path to a resource, works for dev and PyInstaller."""
+    try:
+        # PyInstaller stores extracted resources in the _MEIPASS folder
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # If not bundled (running from source), use the current working directory
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)

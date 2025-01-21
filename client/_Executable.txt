@@ -1,0 +1,2 @@
+For creating executable file
+pyinstaller --onefile --windowed --clean --icon=textures/icon.ico --name=Chess main.py

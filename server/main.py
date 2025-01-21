@@ -6,7 +6,7 @@ import socket
 from time import sleep
 
 HOST = '127.0.0.1'
-PORT = 1235  # Vrata strežnika
+PORT = 12345  # Vrata strežnika
 BUFFER_SIZE = 1024
 running = True  # Če je True, potem strežnik posluša, sicer se konča
 s = None

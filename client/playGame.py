@@ -125,7 +125,8 @@ def play(gui):
             #print("Waiting for game to start")
             gui.addText("WAITING FOR",coordinates=((1000-gui.getTextSize("WAITING FOR", 115))/2,300),fontSize=115,color=colors.BLACK,bold=True)
             gui.addText("OPPONENT",coordinates=((1000 - gui.getTextSize("OPPONENT", 115))/2,390),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=((1000 - gui.getTextSize(f"Code:  {sendingAndReciving.current_game_code.upper()}", 110))/2,480),fontSize=110,color=colors.BLACK,bold=True)
+            if sendingAndReciving.current_game_code:
+                gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=((1000 - gui.getTextSize(f"Code:  {sendingAndReciving.current_game_code.upper()}", 110))/2,480),fontSize=110,color=colors.BLACK,bold=True)
             gui.draw(board,legalMoves)
             continue
 

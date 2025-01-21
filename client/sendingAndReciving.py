@@ -105,7 +105,7 @@ def handle_server_response(protocol, message):
         if "Igre ni mogoče najti." in message:
             isThereNoErrors = False
 
-        print(f"NAPAKA: {message}")
+        #print(f"NAPAKA: {message}")
     elif protocol == "#GSTART":
         gameStarted = True
 

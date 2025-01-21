@@ -119,7 +119,8 @@ class ChessBoard:
     def _areMovesLegalNoCheckAfterMove(self,legalMoves):
         row,column = self._findCurrentlySelected(legalMoves)
         if row == None:
-            print("No piece selected.")
+            #print("No piece selected.")
+            pass
         
         for rowT in range(8):
             for columnT in range(8):
@@ -168,7 +169,7 @@ class ChessBoard:
         if not self.storePosition(self.currBoard):
             return "DTFR"  # Draw due to three-fold repetition
         if self.isMate():
-            print("Mate")
+            #print("Mate")
             return "W" if not self.isWhiteToMove else "B"
         draw_result = self.isDraw()
         if draw_result is not False:
@@ -548,13 +549,13 @@ class ChessBoard:
         return True
     def isDraw(self):
         if(self._isStalemate50MoveRule()):
-            print("Draw due to 50 move rule")
+            #print("Draw due to 50 move rule")
             return "D50"
         elif(self._isStalemate()):
-            print("Draw due to stalemate")
+            #print("Draw due to stalemate")
             return "DS"
         elif self._isDrawDueToInsuficientMaterial():
-            print("Draw due to insuficient material")
+            #print("Draw due to insuficient material")
             return "DIM"
         return False
 

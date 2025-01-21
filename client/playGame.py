@@ -103,8 +103,8 @@ def play(gui):
         clicked = gui.buttonAndTextFieldCalculations()  
 
         if sendingAndReciving.game_ended:
-            print(gui.state)
-            print("GAME END:  ",sendingAndReciving.game_end_message)
+            #print(gui.state)
+            #print("GAME END:  ",sendingAndReciving.game_end_message)
             gui.state = GAME_END
             textWidth = gui.getTextSize(sendingAndReciving.game_end_message,80)
             gui.addText(sendingAndReciving.game_end_message,coordinates=(1000 /2-(textWidth/2),390),fontSize=80,color=colors.BLACK,bold=True)
@@ -125,7 +125,8 @@ def play(gui):
             #print("Waiting for game to start")
             gui.addText("WAITING FOR",coordinates=((1000-gui.getTextSize("WAITING FOR", 115))/2,300),fontSize=115,color=colors.BLACK,bold=True)
             gui.addText("OPPONENT",coordinates=((1000 - gui.getTextSize("OPPONENT", 115))/2,390),fontSize=115,color=colors.BLACK,bold=True)
-            gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=((1000 - gui.getTextSize(f"Code:  {sendingAndReciving.current_game_code.upper()}", 110))/2,480),fontSize=110,color=colors.BLACK,bold=True)
+            if sendingAndReciving.current_game_code:
+                gui.addText(f"Code:  {sendingAndReciving.current_game_code.upper()}",coordinates=((1000 - gui.getTextSize(f"Code:  {sendingAndReciving.current_game_code.upper()}", 110))/2,480),fontSize=110,color=colors.BLACK,bold=True)
             gui.draw(board,legalMoves)
             continue
 
@@ -143,7 +144,7 @@ def play(gui):
                 gui.mouseClickedUpdate()     
                 clicked = gui.buttonAndTextFieldCalculations()  
                 if sendingAndReciving.promotion_pick != 0:
-                    print("CHOSEN")
+                    #print("CHOSEN")
                     sendingAndReciving.send_message("#MOVE",message=f"{sendingAndReciving.promotion_message}:{sendingAndReciving.promotion_pick}")
 
                     sendingAndReciving.promotion_pick = 0
@@ -165,7 +166,7 @@ def play(gui):
                 send_message("#GETLEGALMOVES", message=f"{selectedPosition[0]}:{selectedPosition[1]}")
             elif selectedPosition is not None and (legalMoves[row][column] == 2 or legalMoves[row][column] == 3):
                 if selectedPosition != (row, column):
-                    print("Sending move")
+                    #print("Sending move")
                     send_message("#MOVE", message=f"{selectedPosition[0]}:{selectedPosition[1]}:{row}:{column}")
                     selectedPosition = None
                     for i in range(8):

@@ -1,4 +1,6 @@
 textures/pieces1
 85
+textures/pieces2
+90
 textures/pieces
-100
+120

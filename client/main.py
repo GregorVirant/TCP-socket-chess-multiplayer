@@ -46,7 +46,7 @@ def createGame():
     if not playGame.startSocket(playGame.board, playGame.legalMoves):
         errorText = "Napaka pri povezovanju s strežnikom"
         return
-    print(playGame.board)
+    #print(playGame.board)
     uId = gui.readTextField(0)
     if uId == "":
         uniqueIDRequiered = True

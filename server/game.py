@@ -83,7 +83,7 @@ class Game:
         self.uniqueCodeC2 = unique_id
     
     def disconnectPlayer(self,unique_id):
-        print(f"Zahteva za izhod iz igre {self.gameID} od igralca {unique_id}")
+        #print(f"Zahteva za izhod iz igre {self.gameID} od igralca {unique_id}")
         if self.uniqueCodeC1 == unique_id:
             if self.socketC1:
                 self.socketC1.close()
@@ -146,7 +146,7 @@ class Game:
                         needCol = self.coordsToAlgebraic(oldRow, oldCol)[0]
                     if p[1] == oldCol:
                         needRow = self.coordsToAlgebraic(oldRow, oldCol)[1]
-            print (f"Potrebujemo {needRow} {needCol}")
+            #print (f"Potrebujemo {needRow} {needCol}")
             return needRow + needCol
         except Exception as e:
             print(f"Napaka pri preverjanju dvoumnega poteza {e}")

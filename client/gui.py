@@ -71,7 +71,6 @@ def writeCurrentPieceTexture(number):
     try:
         with open("textures/current_pieces_texture.txt",'w') as file:
             file.write(str(number))
-            print("hoho")
         return True
     except:
         return False

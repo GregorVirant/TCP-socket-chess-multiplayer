@@ -5,7 +5,7 @@ import ast
 import time
 
 SERVER_IP = '127.0.0.1'
-PORT = 1235
+PORT = 12345
 BUFFER_SIZE = 1024
 
 

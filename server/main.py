@@ -88,7 +88,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                         # preveri, če je igralčev unique_id že v igri
                         if match.isDuplicateId(unique_id):
                             send_response(conn, "#ISNOERRORS", "Duplicate")
-                            print(f"Duplicate")
+                            #print(f"Duplicate")
                             return False
                         
                         # če se hoče kdo reconnectat
@@ -96,7 +96,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                             match.reconnectPlayer(conn, unique_id)
                             send_response(conn, "#ISNOERRORS", True)
 
-                            print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
+                            #print(f"Igralec {unique_id} se je ponovno povezal v igro {game_code}")
                             send_response(conn, "#INFO", f"Ponovno ste se povezali v igro {game_code}")
                             send_response(conn,"#GSTART","")
                             
@@ -111,7 +111,7 @@ def protocol_check_CJ(protocol, message, conn):  # za create in join
                         elif match.isOneSpaceEmpty():
                             send_response(conn, "#ISNOERRORS", True)
                             match.addPlayer2(conn, unique_id)
-                            print(f"Igralec {unique_id} se je pridružil igri {game_code}")
+                            #print(f"Igralec {unique_id} se je pridružil igri {game_code}")
                             send_response(conn, "#INFO", f"Pridružili ste se igri {game_code}")
                             tempBoard = match.chessBoard
                             if match.whoIsWhite == 1:
@@ -145,7 +145,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
             with lock:
                 for match in games:
                     if match.gameID == game_code:
-                        print(f"Sporočilo poslano v igri {game_code}: {actual_message}")
+                        #print(f"Sporočilo poslano v igri {game_code}: {actual_message}")
                         if match.socketC1 is not None:
                             send_response(match.socketC1, "#BOARD", actual_message)
                         if match.socketC2 is not None:
@@ -157,14 +157,14 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
     elif protocol == "#EXIT":  # Format: game_code:uniqueID
         try:
             game_code, unique_id = message.strip().split(":", 1)
-            print(f"Zahteva za izhod iz igre {game_code} od igralca {unique_id}")
+            #print(f"Zahteva za izhod iz igre {game_code} od igralca {unique_id}")
             with lock:
                 for match in games:
                     if match.gameID == game_code:
-                        print(f"Najdena igra {game_code}")
+                        #print(f"Najdena igra {game_code}")
                         match.disconnectPlayer(unique_id)
                         conn.close()
-                        print(f"Igralec {unique_id} se je odjavil iz igre {game_code}")
+                        #print(f"Igralec {unique_id} se je odjavil iz igre {game_code}")
                         # Check if game is empty
                         if match.isEmpty():
                             games.remove(match)
@@ -178,7 +178,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
     elif protocol == "#GETLEGALMOVES": # Format: game_code:uniqueID:row:column
         try:
             game_code, unique_id, row, column = message.strip().split(":", 3)
-            print(row, column)
+            #print(row, column)
             with lock:
                 for match in games:
                     if match.gameID == game_code:
@@ -189,7 +189,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             send_response(conn, "#ERROR", "Nisi na vrsti.")
                             return
 
-                        print(f"Zahteva za legalne poteze v igri {game_code} od igralca {unique_id}")
+                        #print(f"Zahteva za legalne poteze v igri {game_code} od igralca {unique_id}")
                         if match.socketC1 is not None and match.uniqueCodeC1 == unique_id:
                             if match.whoIsWhite != 1:
                                 row = 7 - int(row)
@@ -199,7 +199,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             if match.whoIsWhite != 1:
                                 legalMoves1 = match.flipLegalMoves(legalMoves)
                             send_response(match.socketC1, "#LEGALMOVES", legalMoves1)
-                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                            #print(f"Legalne poteze poslane igralcu {unique_id}")
                         elif match.socketC2 is not None and match.uniqueCodeC2 == unique_id:
                             if match.whoIsWhite != 2:
                                 row = 7 - int(row)
@@ -208,19 +208,19 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                             legalMoves1 = legalMoves
                             if match.whoIsWhite != 2:
                                 legalMoves1 = match.flipLegalMoves(legalMoves)
-                                print(legalMoves1)
+                                #print(legalMoves1)
                             send_response(match.socketC2, "#LEGALMOVES", legalMoves1)
-                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                            #print(f"Legalne poteze poslane igralcu {unique_id}")
                         else:
                             send_response(conn, "#ERROR", "Igralec ni v igri.")
                         return
                 send_response(conn, "#ERROR", "Igre ni mogoče najti.")
         except ValueError:
-            print("Napaka pri obdelavi GETLEGALMOVES sporočila")
+            #print("Napaka pri obdelavi GETLEGALMOVES sporočila")
             send_response(conn, "#ERROR", "Neveljavno sporočilo. Format: row:column")
     elif protocol == "#MOVE":
         try:
-            print(f"MESSAGE: {message}")
+            #print(f"MESSAGE: {message}")
             parts = message.strip().split(":", 6)
             #print(message)
             if len(parts) == 6:
@@ -253,7 +253,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 startCol = 7 - startCol
                                 endRow = 7 - endRow
                                 endCol = 7 - endCol
-                            print(f"PROMOTE TO {piece}")
+                            #print(f"PROMOTE TO {piece}")
                             match.chess.currBoard[endRow][endCol] = piece
                             #return
                             pieceNotation = {2: 'R', 3: 'N', 4: 'B', 5: 'Q'}
@@ -301,7 +301,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
 
                             match.moves[-1] += notation
                             match.saveToFile()
-                            print(f"Legalne poteze poslane igralcu {unique_id}")
+                            #print(f"Legalne poteze poslane igralcu {unique_id}")
                             send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                             match.isWhiteTurn = not match.isWhiteTurn
@@ -318,19 +318,20 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 endRow = 7 - int(endRow)
                                 endCol = 7 - int(endCol)
                             #print("BOARD:" + str(match.chessBoard))
-                            print(startRow, startCol, endRow, endCol)
+                            #print(startRow, startCol, endRow, endCol)
                             legalMoves = match.chess.getLegalMoves(int(startRow), int(startCol))
                             if legalMoves[int(endRow)][int(endCol)] in (2, 3):
                                 notation = match.generateMoveNotation(int(startRow), int(startCol), int(endRow), int(endCol))
                                 moveMade = match.makeMove((int(startRow), int(startCol)), (int(endRow), int(endCol)))
-                                print(f"MOVE MADE: {moveMade}")
+                                #print(f"MOVE MADE: {moveMade}")
 
                                 if moveMade in ("W", "B"):
                                     notation += "#"
                                 elif match.chess.isCheck(match.chess.isWhiteToMove):
                                     notation += "+"
                                 else:
-                                    print("NOT CHECKMATE")
+                                    #print("NOT CHECKMATE")
+                                    pass
 
                                 
                                 match.moves.append(notation)
@@ -341,9 +342,9 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                 
                                 match.saveToFile()
 
-                                print(notation)
-                                print("BOARD:" + str(match.chessBoard))
-                                print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
+                                #print(notation)
+                                #print("BOARD:" + str(match.chessBoard))
+                                #print(f"Igralec {unique_id} je naredil potezo v igri {game_code}")
                                 match.updateBoard()
                                 board1 = match.chessBoard
                                 board2 = match.chessBoard
@@ -371,7 +372,7 @@ def protocol_check_other(protocol, message, conn): # za sporočila in exit
                                         send_response(match.socketC1, "#BOARD", board1)
                                         send_response(match.socketC1, "#INFO", "Nasprotnik je naredil potezo.")
                                         send_response(match.socketC1, "#MOVEMADE", f"{startRow}:{startCol}:{endRow}:{endCol}")
-                                print(f"Legalne poteze poslane igralcu {unique_id}")
+                                #print(f"Legalne poteze poslane igralcu {unique_id}")
                                 send_response(match.socketC1, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
                                 send_response(match.socketC2, "#TIME", f"{match.timeWhite}:{match.timeBlack}")
 

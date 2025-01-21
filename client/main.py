@@ -101,7 +101,7 @@ while run:
     gui.mouseClickedUpdate()     
     clicked = gui.buttonAndTextFieldCalculations()
     errorTextSize = gui.getTextSize(errorText,40)
-    gui.addText(errorText,(450-(errorTextSize/2),350),40,color=colors.RED,bold=True)
+    gui.addText(errorText,(500-(errorTextSize/2),380),40,color=colors.RED,bold=True)
 
     if uniqueIDRequiered:
         gui.addText("UID REQUIRED",(550,570),40,color=colors.RED,bold=True)
@@ -117,7 +117,7 @@ while run:
     
     if playGame.sendingAndReciving.connectionError:
         playGame.sendingAndReciving.connectionError = False
-        errorText = "Connection error"
+        errorText = ""
         print("Connection error")
 
     gui.draw()

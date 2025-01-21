@@ -117,7 +117,8 @@ def handle_server_response(protocol, message):
         #send_message("#MOVE",message=m)
 
     elif protocol == "#M":
-        print(f"SPOROČILO: {message}")
+        pass
+        #print(f"SPOROČILO: {message}")
     elif protocol == "#ISNOERRORS":
         if message == "True":
             isThereNoErrors = "True"
@@ -155,7 +156,7 @@ def handle_server_response(protocol, message):
         if timerThread:
             timerThread.join()
         Time = "10:0:0 - 10:0:0"
-        print(message)
+        #print(message)
     
     elif protocol == "#LEGALMOVES":
         legalMoves2 = ast.literal_eval(message)

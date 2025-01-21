@@ -202,7 +202,9 @@ def play(gui):
         gui.draw(board,legalMoves)
         
 
-
+    for i in range(8):
+        for j in range(8):
+            legalMoves[i][j]=0
     gui.state = MENU
     sendingAndReciving.gameStarted = False
     gui.lastMoveStart = (-1,-1)

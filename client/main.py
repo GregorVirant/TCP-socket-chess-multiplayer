@@ -82,7 +82,7 @@ def joinGame():
     playGame.sendingAndReciving.isThereNoErrors = "N/A"
     playGame.send_message("#JOIN")
     
-    Thread(target=waitForGameCodeResponse).start()
+    Thread(target=waitForGameCodeResponse,daemon = True).start()
     
 #gui.addText("Šah",(350,230),150,bold=True,isPermanent=True)
 gui.addText("Unique ID",(335+gui.borderWidth,600),40,bold=True,isPermanent=True)

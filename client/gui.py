@@ -8,6 +8,73 @@ MENU = 0
 GAME = 1
 PICK_FIGURE = 2
 GAME_END = 3
+def getBackgroundTexturePath():
+    try:
+        with open("textures/texture_background.txt",'r') as file:
+            line = file.readline().strip()
+            if not line:
+                print("File textures/texture_background.txt is empty.");
+                return None
+            else:
+                return line;
+    except Exception as e:
+        print(f"Napaka pri branju texture_background: {e}.")
+        return None
+    
+def getPiecesTextures():
+    try:
+        with open("textures/textures_pieces.txt",'r') as file:
+            lines = file.readlines()
+        if len(lines) < 2:
+            print(f"File textures_pieces.txt does not have enough lines.")
+            return None
+        textures = []
+        path = ""
+        number = 0
+        for i in range(len(lines)):
+            if i%2 == 0:
+                path = lines[i].strip()
+            else:
+                try:
+                    number = int(lines[i].strip())
+                    textures.append((path,number))
+                except:
+                    print("File textures_pieces.txt doesn not include numbers on correct lines.")
+                    return None
+        return textures;            
+                
+    except Exception as e:
+        print(f"Napaka pri branju textures_pieces.txt: {e}.")
+        return None
+
+def getCurrentPiecesTextures():
+    try:
+        with open("textures/current_pieces_texture.txt",'r') as file:
+            line = file.readline().strip()
+            if not line:
+                print("File textures/current_pieces_texture.txt is empty.");
+                return None
+            else:
+                num = 0
+                try:
+                    num = int(line);
+                except:
+                    print("Content textures/current_pieces_texture.txt is not a file.");
+                    return None
+                return num
+    except Exception as e:
+        print(f"Napaka pri branju current_pieces_texture.txt: {e}.")
+        return None
+def writeCurrentPieceTexture(number):
+    if not os.path.exists("textures/current_pieces_texture.txt"):
+        return False
+    try:
+        with open("textures/current_pieces_texture.txt",'w') as file:
+            file.write(str(number))
+            print("hoho")
+        return True
+    except:
+        return False
 
 class Gui: 
     def __init__(self):
@@ -30,10 +97,16 @@ class Gui:
 
         #TITLE AND ICON
         pygame.display.set_caption("Chess")
-        icon = pygame.image.load(resource_path("textures/icon.png"))
+        icon = pygame.image.load("textures/icon.png")
         pygame.display.set_icon(icon)
 
-        self.background = pygame.image.load(resource_path("textures/b1.png")).convert()
+        b_texutre = getBackgroundTexturePath()
+        if not b_texutre:
+            sys.exit()
+        try:
+            self.background = pygame.image.load(b_texutre).convert()
+        except:
+            sys.exit()
 
         self.menu = pygame.Surface((800+2*self.borderWidth,800+2*self.borderWidth),pygame.SRCALPHA)
 
@@ -52,8 +125,12 @@ class Gui:
 
         self.colorsForLegalMoves=(colors.LIGHT_BLUE,colors.BLUE,colors.RED)
 
-        self.textures=[("pieces1",85),("pieces",100)]
-        self.texture=0
+        self.textures = getPiecesTextures()
+        if not self.textures:
+            sys.exit()
+        self.texture=getCurrentPiecesTextures()
+        if self.texture == None or self.texture >= len(self.textures):
+            sys.exit()
 
         self.mouseClicked = False
 
@@ -65,7 +142,7 @@ class Gui:
         self.lastMoveEnd = (-1,-1)
 
         self.whoseTurn = 0
-        self.whoseMoveScale = 0.1
+        self.whoseMoveScale = 0.1 
     
     def getBorderWidth(self):
         return self.borderWidth
@@ -74,17 +151,22 @@ class Gui:
         if self.texture >= len(self.textures):
             self.texture = 0
         self.loadTexture(self.textures[self.texture][0],self.textures[self.texture][1])
+        if not writeCurrentPieceTexture(self.texture):
+            print("Odpiranje current_piece_texture.txt neuspesno.")
+            sys.exit()
         self.texture+=1
     
-    def loadTexture(self,folder = "pieces1",texture_width=85):
+    def loadTexture(self,folder,texture_width):
         self.texturesWhite = []
         self.texturesBlack = []
-        pieces=["Pawn","Rook","Knight","Bishop","Queen","King"]
-        for piece in pieces:
-            self.texturesWhite.append(pygame.image.load(resource_path(f"textures/{folder}/white{piece}.png")).convert_alpha())
-            self.texturesBlack.append(pygame.image.load(resource_path(f"textures/{folder}/black{piece}.png")).convert_alpha())
-            # self.texturesWhite.append(pygame.transform.scale(pygame.image.load(f"textures/pieces/white{piece}.png").convert_alpha(),(100,100)))
-            # self.texturesBlack.append(pygame.transform.scale(pygame.image.load(f"textures/pieces/black{piece}.png").convert_alpha(),(100,100)))
+        pieces=["Pawn","Rook","Knight","Bishop","Queen","King"] 
+        try:
+            for piece in pieces:
+                self.texturesWhite.append(pygame.image.load(f"{folder}/white{piece}.png").convert_alpha())
+                self.texturesBlack.append(pygame.image.load(f"{folder}/black{piece}.png").convert_alpha())
+        except:
+            print("Invalid piece textures")
+            sys.exit()
 
         self.texture_width = texture_width
         self.texture_shift = (self.square_size-self.texture_width)/2 #zaradi razlike v velikosti polja in figur
@@ -346,15 +428,3 @@ class Gui:
         font = pygame.font.Font(None, fontSize)
         text = font.render(text, True, colors.BLACK)
         return text.get_width()
-    
-
-def resource_path(relative_path):
-    """Get absolute path to a resource, works for dev and PyInstaller."""
-    try:
-        # PyInstaller stores extracted resources in the _MEIPASS folder
-        base_path = sys._MEIPASS
-    except AttributeError:
-        # If not bundled (running from source), use the current working directory
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)

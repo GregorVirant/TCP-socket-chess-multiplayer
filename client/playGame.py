@@ -180,12 +180,12 @@ def play(gui):
             turn = 1 - 2 * (not board_orientation_white)
 
             for i in range(8):
-                gui.addText(text=str(i+1), coordinates=(70, ((900 - turn*(i+1) * 100) % 900) +30))
-                gui.addText(text=chr(i + ord('a')), coordinates=((940 + 100 * turn * (i+1)) % 900, 900))
+                gui.addText(text=str(i+1), coordinates=(60, ((900 - turn*(i+1) * 100) % 900) +30))
+                gui.addText(text=chr(i + ord('a')), coordinates=((940 + 100 * turn * (i+1)) % 900, 915))
        
             
 
-        gui.addText("Beli na potezi." if sendingAndReciving.isWhiteTurn else "Črni na potezi",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
+        gui.addText("White to move." if sendingAndReciving.isWhiteTurn else "Black to move",(50+50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(sendingAndReciving.Time,(50+50,855+100),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
         gui.addText(text=f"material balance: {caculateBoardValue(board)}", coordinates=(570, 50))
         #gui.addText("Beli na potezi.",(50,0),fontSize=30,font="Comic Sans MS", color=colors.BLACK,bold=True)
